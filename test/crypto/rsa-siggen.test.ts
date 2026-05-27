@@ -6,9 +6,10 @@
  *   1) 서명 생성: rsa.decrypt(n, d, paddedHash) == S  (M^D mod N)
  *   2) 서명 검증: rsa.encrypt(n, e, S) == paddedHash  (S^E mod N)
  */
+import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { createHash } from 'crypto';
-import { encrypt, decrypt } from '../src/crypto/rsa.ts';
+import { encrypt, decrypt } from '../../src/crypto/rsa.ts';
 
 // PKCS#1 v1.5 DigestInfo DER prefixes
 const DIGEST_INFO_PREFIX: Record<string, string> = {
@@ -58,43 +59,31 @@ function parse(filepath: string): Section[] {
 }
 
 // --- Run ---
-const sections = parse('test/SigGen15_186-3.txt');
-let total = 0, pass = 0, fail = 0;
+const sections = parse('test/fixtures/SigGen15_186-3.txt');
 
-for (const sec of sections) {
-  const modByteLen = sec.mod / 8;
-  console.log(`\n=== mod = ${sec.mod} (${sec.tests.length} vectors) ===`);
+describe('RSA PKCS#1 v1.5 SigGen NIST Tests', () => {
+  for (const sec of sections) {
+    describe(`mod = ${sec.mod}`, () => {
+      const modByteLen = sec.mod / 8;
+      
+      for (let i = 0; i < sec.tests.length; i++) {
+        const t = sec.tests[i]!;
+        
+        it(`should verify test case #${i + 1} (${t.alg})`, () => {
+          const padded = buildPkcs1v15(t.alg, t.msg, modByteLen);
+          const expectedSig = t.sig.toUpperCase();
 
-  for (let i = 0; i < sec.tests.length; i++) {
-    const t = sec.tests[i]!;
-    total++;
+          // 1) 서명 생성: decrypt(n, d, padded) — 내부적으로 padded^D mod N
+          const signed = decrypt(sec.n, sec.d, padded);
 
-    const padded = buildPkcs1v15(t.alg, t.msg, modByteLen);
-    const expectedSig = t.sig.toUpperCase();
+          // 2) 서명 검증: encrypt(n, e, sig) — 내부적으로 S^E mod N
+          const verified = encrypt(sec.n, sec.e, t.sig);
 
-    // 1) 서명 생성: decrypt(n, d, padded) — 내부적으로 padded^D mod N
-    const signed = decrypt(sec.n, sec.d, padded);
-
-    // 2) 서명 검증: encrypt(n, e, sig) — 내부적으로 S^E mod N
-    const verified = encrypt(sec.n, sec.e, t.sig);
-
-    const signOk = signed === expectedSig;
-    const verifyOk = verified === padded;
-
-    if (signOk && verifyOk) {
-      pass++;
-      console.log(`  [PASS] #${i + 1} ${t.alg}`);
-    } else {
-      fail++;
-      console.log(`  [FAIL] #${i + 1} ${t.alg} — sign=${signOk}, verify=${verifyOk}`);
-      if (!signOk) {
-        console.log(`    got:      ${signed.substring(0, 60)}...`);
-        console.log(`    expected: ${expectedSig.substring(0, 60)}...`);
+          expect(signed).toBe(expectedSig);
+          expect(verified).toBe(padded);
+        });
       }
-    }
+    });
   }
-}
+});
 
-console.log(`\n========================================`);
-console.log(`Total: ${total}  Pass: ${pass}  Fail: ${fail}`);
-console.log(`========================================`);
