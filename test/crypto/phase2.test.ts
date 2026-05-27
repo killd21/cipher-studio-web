@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { digest } from '../../src/crypto/hash.ts';
-import { ecbEncrypt, cbcEncrypt, cbcDecrypt, ctrEncrypt } from '../../src/crypto/aes.ts';
+import { 
+  ecbEncrypt, cbcEncrypt, cbcDecrypt, ctrEncrypt, 
+  gcmEncrypt, gcmDecrypt 
+} from '../../src/crypto/aes.ts';
 
 describe('Phase 2: Hash & AES', () => {
   describe('Hash', () => {
@@ -43,6 +46,25 @@ describe('Phase 2: Hash & AES', () => {
       const pt  = '6bc1bee22e409f96e93d7e117393172a';
       const ct = ctrEncrypt(key, pt, iv);
       const res = ctrEncrypt(key, ct, iv); // CTR is symmetric
+      expect(res).toBe(pt.toUpperCase());
+    });
+
+    it('AES-128 GCM test vector (NIST)', () => {
+      const key = 'feffe9928665731c6d6a8f9467308308';
+      const nonce = 'cafebabefacedbaddecaf888';
+      const pt = 'd9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39';
+      // Expected ciphertext + 16-byte tag
+      const expected = '42831ec2217774244b7221b784d0d49ce3aa212f2c02a4e035c17e2329aca12e21d514b25466931c7d8f6a5aac84aa051ba30b396a0aac973d58e091' + 'cc15abcc191161501aabab46b8fbac85';
+      expect(gcmEncrypt(key, pt, nonce)).toBe(expected.toUpperCase());
+    });
+
+    it('AES-128 GCM roundtrip with AAD', () => {
+      const key = 'feffe9928665731c6d6a8f9467308308';
+      const nonce = 'cafebabefacedbaddecaf888';
+      const pt = 'd9313225f88406e5a55909c5aff5269a';
+      const aad = 'feedfacedeadbeeffeedfacedeadbeefabaddad2';
+      const ct = gcmEncrypt(key, pt, nonce, aad);
+      const res = gcmDecrypt(key, ct, nonce, aad);
       expect(res).toBe(pt.toUpperCase());
     });
   });

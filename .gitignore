@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 .tasks
+.tasks/*
 
 # Editor directories and files
 .vscode/*

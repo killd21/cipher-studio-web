@@ -1,5 +1,5 @@
 import { toBuf, toHex } from './hex-utils.ts';
-import { ecb, cbc, ctr } from '@noble/ciphers/aes.js';
+import { ecb, cbc, ctr, gcm } from '@noble/ciphers/aes.js';
 
 export function ecbEncrypt(key: string, data: string): string {
   const k = toBuf(key);
@@ -48,4 +48,23 @@ export function ctrEncrypt(key: string, data: string, nonce?: string): string {
 
 export function ctrDecrypt(key: string, data: string, nonce?: string): string {
   return ctrEncrypt(key, data, nonce);
+}
+
+// AES-GCM (AEAD)
+export function gcmEncrypt(key: string, data: string, nonce: string, aad?: string): string {
+  const k = toBuf(key);
+  const d = toBuf(data);
+  const n = toBuf(nonce);
+  const a = aad ? toBuf(aad) : undefined;
+  const cipher = gcm(k, n, a);
+  return toHex(cipher.encrypt(d)); // Returns ciphertext + 16-byte tag
+}
+
+export function gcmDecrypt(key: string, data: string, nonce: string, aad?: string): string {
+  const k = toBuf(key);
+  const d = toBuf(data);
+  const n = toBuf(nonce);
+  const a = aad ? toBuf(aad) : undefined;
+  const cipher = gcm(k, n, a);
+  return toHex(cipher.decrypt(d));
 }

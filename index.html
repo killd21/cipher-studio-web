@@ -531,6 +531,7 @@
                   <option value="ECB">ECB Mode</option>
                   <option value="CBC">CBC Mode</option>
                   <option value="CTR">CTR Mode</option>
+                  <option value="GCM">GCM Mode (AEAD)</option>
                 </select>
                 <select id="aes-dir">
                   <option value="Enc">Encrypt</option>
@@ -554,9 +555,13 @@
                 <label id="aes-iv-label">IV (16 bytes hex)</label>
                 <input type="text" id="aes-iv" placeholder="16B IV / nonce hex...">
               </div>
+              <div class="input-group hidden" id="aes-aad-group">
+                <label>Associated Data (AAD) - Optional</label>
+                <input type="text" id="aes-aad" placeholder="Additional authenticated data hex...">
+              </div>
               <div class="input-group">
                 <label>Data</label>
-                <textarea id="aes-data" placeholder="Plaintext / ciphertext hex (multiple of 16B)..."></textarea>
+                <textarea id="aes-data" placeholder="Plaintext / ciphertext hex..."></textarea>
               </div>
               <div class="action-row">
                 <button class="btn-primary" onclick="runAes()">Execute</button>
@@ -1206,10 +1211,23 @@
     function updateAesMode() {
       const el = document.getElementById('aes-mode');
       if(!el) return;
-      const isCtr = el.value === 'CTR'; const isEcb = el.value === 'ECB';
+      const mode = el.value;
+      const isCtr = mode === 'CTR';
+      const isEcb = mode === 'ECB';
+      const isGcm = mode === 'GCM';
+      
       document.getElementById('aes-iv-group')?.classList.toggle('hidden', isEcb);
+      document.getElementById('aes-aad-group')?.classList.toggle('hidden', !isGcm);
+      
+      // Fix: Specifically target the aes-pad select's parent, not the entire row
+      const padSelect = document.getElementById('aes-pad');
+      if (padSelect && padSelect.parentElement) {
+        padSelect.classList.toggle('hidden', isCtr || isGcm);
+        // If your CSS hides the parent (seg-group) incorrectly, we just hide the select element itself
+      }
+      
       const label = document.getElementById('aes-iv-label');
-      if(label) label.textContent = isCtr ? 'Nonce (16 bytes)' : 'IV (16 bytes)';
+      if(label) label.textContent = (isCtr || isGcm) ? 'Nonce (12/16 bytes hex)' : 'IV (16 bytes hex)';
     }
     function updateRsaFields() {
       const el = document.getElementById('rsa-op'); if(!el) return;
@@ -1308,14 +1326,25 @@
       let data = normalizeHex(document.getElementById('aes-data').value);
       const mode = document.getElementById('aes-mode').value;
       const dir = document.getElementById('aes-dir').value;
+      
+      const isEcb = mode === 'ECB';
+      const isGcm = mode === 'GCM';
       const isCtr = mode === 'CTR';
-      const nonce = (mode === 'CBC' || isCtr) ? normalizeHex(document.getElementById('aes-iv').value) : '';
-      const padAlg = isCtr ? 'none' : document.getElementById('aes-pad').value;
+      const isNoPadMode = isCtr || isGcm;
+      
+      const nonce = (!isEcb) ? normalizeHex(document.getElementById('aes-iv').value) : '';
+      const aad = isGcm ? normalizeHex(document.getElementById('aes-aad').value) : '';
+      const padAlg = isNoPadMode ? 'none' : document.getElementById('aes-pad').value;
       const op = `${mode.toLowerCase()}${dir}rypt`;
       try {
-        if (!isCtr && dir === 'Enc') data = await applyPadding(padAlg, data, 16);
-        const result = await window.electronAPI.crypto.aes(op, key, data, nonce || undefined);
-        const final = (!isCtr && dir === 'Dec') ? removePadding(padAlg, result) : result;
+        if (!isNoPadMode && dir === 'Enc') data = await applyPadding(padAlg, data, 16);
+        const result = await window.electronAPI.crypto.aes(op, key, data, nonce || undefined, aad || undefined);
+        
+        let final = result;
+        if (!isNoPadMode && dir === 'Dec') {
+          final = removePadding(padAlg, result);
+        }
+        
         showResult('aes-result', final, 'aes-error');
         addLog(`AES ${mode} ${dir}`, final.substring(0, 32) + (final.length > 32 ? '…' : ''));
       } catch (e) { showError('aes-error', e.message); addLog(`AES ERROR`, e.message); }

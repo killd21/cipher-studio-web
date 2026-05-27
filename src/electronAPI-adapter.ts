@@ -77,6 +77,7 @@ export function installElectronAPI(): void {
         const key = args[0] as string;
         const data = args[1] as string;
         const iv = args[2] as string | undefined;
+        const aad = args[3] as string | undefined;
         switch (op) {
           case 'ecbEncrypt': return aes.ecbEncrypt(key, data);
           case 'ecbDecrypt': return aes.ecbDecrypt(key, data);
@@ -84,6 +85,8 @@ export function installElectronAPI(): void {
           case 'cbcDecrypt': return aes.cbcDecrypt(key, data, iv);
           case 'ctrEncrypt': return aes.ctrEncrypt(key, data, iv);
           case 'ctrDecrypt': return aes.ctrDecrypt(key, data, iv);
+          case 'gcmEncrypt': return aes.gcmEncrypt(key, data, iv!, aad);
+          case 'gcmDecrypt': return aes.gcmDecrypt(key, data, iv!, aad);
           default: throw new Error(`Unknown AES op: ${op}`);
         }
       },
