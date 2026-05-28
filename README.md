@@ -80,6 +80,46 @@ A browser-based cryptography toolkit. All operations run client-side with no ser
 All cryptographic operations use **hex (hexadecimal) strings** for input and output.
 The Base64 encoding utility supports conversion to and from standard / URL-safe Base64.
 
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20+ and npm
+
+### Install
+
+```bash
+git clone https://github.com/killd21/cipher-studio-web.git
+cd cipher-studio-web
+npm install
+```
+
+### Development server
+
+```bash
+npm run dev
+```
+Open the printed URL (default `http://localhost:5173`) in your browser.
+
+### Production build
+
+```bash
+npm run build
+```
+Outputs the static site to `dist/`. Deploy the folder to any static host (GitHub Pages, Vercel, Cloudflare Pages, S3, Nginx, …).
+
+### Preview the production build
+
+```bash
+npm run preview
+```
+
+### Run tests
+
+```bash
+npm test
+```
+
 ## License
 
 This project is distributed under the [MIT License](./LICENSE).
