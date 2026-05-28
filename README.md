@@ -70,6 +70,7 @@ A browser-based cryptography toolkit. All operations run client-side with no ser
 [![@noble/post-quantum](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/@noble/post-quantum?branch=master&logo=npm&logoColor=white&label=%40noble%2Fpost-quantum&color=8B5CF6)](https://www.npmjs.com/package/@noble/post-quantum)
 
 ### Repository
+[![Release](https://img.shields.io/github/v/release/killd21/cipher-studio-web?logo=github&label=Release&color=blueviolet)](https://github.com/killd21/cipher-studio-web/releases/latest)
 [![CI](https://github.com/killd21/cipher-studio-web/actions/workflows/ci.yml/badge.svg)](https://github.com/killd21/cipher-studio-web/actions/workflows/ci.yml)
 [![Last Commit](https://img.shields.io/github/last-commit/killd21/cipher-studio-web?logo=github)](https://github.com/killd21/cipher-studio-web/commits/master)
 [![Tests](https://img.shields.io/badge/tests-245%20passed-success?logo=vitest&logoColor=white)](./test)
