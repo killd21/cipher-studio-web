@@ -645,6 +645,7 @@
                   <option value="CTR">CTR Mode</option>
                   <option value="CFB">CFB Mode</option>
                   <option value="GCM">GCM Mode (AEAD)</option>
+                  <option value="CCM">CCM Mode (AEAD)</option>
                 </select>
                 <select id="aes-dir">
                   <option value="Enc">Encrypt</option>
@@ -671,6 +672,18 @@
               <div class="input-group hidden" id="aes-aad-group">
                 <label>Associated Data (AAD) - Optional</label>
                 <input type="text" id="aes-aad" placeholder="Additional authenticated data hex...">
+              </div>
+              <div class="input-group hidden" id="aes-tag-group">
+                <label>Tag length (bytes)</label>
+                <select id="aes-tag">
+                  <option value="4">4</option>
+                  <option value="6">6</option>
+                  <option value="8">8</option>
+                  <option value="10">10</option>
+                  <option value="12">12</option>
+                  <option value="14">14</option>
+                  <option value="16" selected>16</option>
+                </select>
               </div>
               <div class="input-group">
                 <label>Data</label>
@@ -1623,17 +1636,24 @@
       const isStream = mode === 'CTR' || mode === 'CFB';
       const isEcb = mode === 'ECB';
       const isGcm = mode === 'GCM';
+      const isCcm = mode === 'CCM';
+      const isAead = isGcm || isCcm;
 
       document.getElementById('aes-iv-group')?.classList.toggle('hidden', isEcb);
-      document.getElementById('aes-aad-group')?.classList.toggle('hidden', !isGcm);
+      document.getElementById('aes-aad-group')?.classList.toggle('hidden', !isAead);
+      document.getElementById('aes-tag-group')?.classList.toggle('hidden', !isCcm);
 
       const padSelect = document.getElementById('aes-pad');
       if (padSelect && padSelect.parentElement) {
-        padSelect.classList.toggle('hidden', isStream || isGcm);
+        padSelect.classList.toggle('hidden', isStream || isAead);
       }
 
       const label = document.getElementById('aes-iv-label');
-      if(label) label.textContent = (mode === 'CTR' || isGcm) ? 'Nonce (12/16 bytes hex)' : 'IV (16 bytes hex)';
+      if(label) {
+        if (isCcm) label.textContent = 'Nonce (7-13 bytes hex, typ. 12)';
+        else if (mode === 'CTR' || isGcm) label.textContent = 'Nonce (12/16 bytes hex)';
+        else label.textContent = 'IV (16 bytes hex)';
+      }
     }
     function updateRsaFields() {
       const el = document.getElementById('rsa-op'); if(!el) return;
@@ -1737,15 +1757,18 @@
       const isGcm = mode === 'GCM';
       const isCtr = mode === 'CTR';
       const isCfb = mode === 'CFB';
-      const isNoPadMode = isCtr || isGcm || isCfb;
-      
+      const isCcm = mode === 'CCM';
+      const isAead = isGcm || isCcm;
+      const isNoPadMode = isCtr || isCfb || isAead;
+
       const nonce = (!isEcb) ? normalizeHex(document.getElementById('aes-iv').value) : '';
-      const aad = isGcm ? normalizeHex(document.getElementById('aes-aad').value) : '';
+      const aad = isAead ? normalizeHex(document.getElementById('aes-aad').value) : '';
+      const tagLen = isCcm ? parseInt(document.getElementById('aes-tag').value, 10) : undefined;
       const padAlg = isNoPadMode ? 'none' : document.getElementById('aes-pad').value;
       const op = `${mode.toLowerCase()}${dir}rypt`;
       try {
         if (!isNoPadMode && dir === 'Enc') data = await applyPadding(padAlg, data, 16);
-        const result = await window.electronAPI.crypto.aes(op, key, data, nonce || undefined, aad || undefined);
+        const result = await window.electronAPI.crypto.aes(op, key, data, nonce || undefined, aad || undefined, tagLen);
         
         let final = result;
         if (!isNoPadMode && dir === 'Dec') {

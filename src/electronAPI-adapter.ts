@@ -93,6 +93,8 @@ export function installElectronAPI(): void {
           case 'gcmDecrypt': return aes.gcmDecrypt(key, data, iv!, aad);
           case 'cfbEncrypt': return aes.cfbEncrypt(key, data, iv);
           case 'cfbDecrypt': return aes.cfbDecrypt(key, data, iv);
+          case 'ccmEncrypt': return aes.ccmEncrypt(key, data, iv!, aad, args[4] as number | undefined);
+          case 'ccmDecrypt': return aes.ccmDecrypt(key, data, iv!, aad, args[4] as number | undefined);
           default: throw new Error(`Unknown AES op: ${op}`);
         }
       },
