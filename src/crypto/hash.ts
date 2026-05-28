@@ -1,6 +1,9 @@
 import { toBuf, toHex } from './hex-utils.ts';
 import { md5 as md5Hash } from 'js-md5';
 import { sha3_256, sha3_384, sha3_512, shake128, shake256 } from '@noble/hashes/sha3.js';
+import { blake2b, blake2s } from '@noble/hashes/blake2.js';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { ripemd160 } from '@noble/hashes/legacy.js';
 
 export async function digest(algorithm: string, dataHex: string, outputLen?: number): Promise<string> {
   const alg = algorithm.toLowerCase();
@@ -28,6 +31,22 @@ export async function digest(algorithm: string, dataHex: string, outputLen?: num
   if (alg === 'shake256') {
     const len = outputLen ?? 64;
     return toHex(shake256(buf, { dkLen: len }));
+  }
+
+  if (alg === 'blake2b') {
+    const len = outputLen ?? 64;
+    return toHex(blake2b(buf, { dkLen: len }));
+  }
+  if (alg === 'blake2s') {
+    const len = outputLen ?? 32;
+    return toHex(blake2s(buf, { dkLen: len }));
+  }
+  if (alg === 'blake3') {
+    const len = outputLen ?? 32;
+    return toHex(blake3(buf, { dkLen: len }));
+  }
+  if (alg === 'ripemd160') {
+    return toHex(ripemd160(buf));
   }
 
   const webCryptoAlg: Record<string, string> = {

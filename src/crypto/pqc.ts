@@ -1,6 +1,10 @@
 import { toBuf, toHex } from './hex-utils.ts';
 import { ml_kem512, ml_kem768, ml_kem1024 } from '@noble/post-quantum/ml-kem.js';
 import { ml_dsa44, ml_dsa65, ml_dsa87 } from '@noble/post-quantum/ml-dsa.js';
+import {
+  slh_dsa_shake_128f, slh_dsa_shake_192f, slh_dsa_shake_256f,
+  slh_dsa_sha2_128f, slh_dsa_sha2_192f, slh_dsa_sha2_256f,
+} from '@noble/post-quantum/slh-dsa.js';
 
 function getKem(variant: number | string) {
   if (variant === 512 || variant === '512') return ml_kem512;
@@ -46,4 +50,32 @@ export function dsaVerify(
   variant: number | string, publicKeyHex: string, messageHex: string, signatureHex: string,
 ): boolean {
   return getDsa(variant).verify(toBuf(signatureHex), toBuf(messageHex), toBuf(publicKeyHex));
+}
+
+// --- SLH-DSA (FIPS 205, SPHINCS+) ---
+function getSlhDsa(variant: string) {
+  switch (variant) {
+    case 'shake-128f': return slh_dsa_shake_128f;
+    case 'shake-192f': return slh_dsa_shake_192f;
+    case 'shake-256f': return slh_dsa_shake_256f;
+    case 'sha2-128f':  return slh_dsa_sha2_128f;
+    case 'sha2-192f':  return slh_dsa_sha2_192f;
+    case 'sha2-256f':  return slh_dsa_sha2_256f;
+    default: throw new Error(`Unknown SLH-DSA variant: ${variant}`);
+  }
+}
+
+export function slhKeygen(variant: string): { publicKey: string; secretKey: string } {
+  const { publicKey, secretKey } = getSlhDsa(variant).keygen();
+  return { publicKey: toHex(publicKey), secretKey: toHex(secretKey) };
+}
+
+export function slhSign(variant: string, secretKeyHex: string, messageHex: string): string {
+  return toHex(getSlhDsa(variant).sign(toBuf(messageHex), toBuf(secretKeyHex)));
+}
+
+export function slhVerify(
+  variant: string, publicKeyHex: string, messageHex: string, signatureHex: string,
+): boolean {
+  return getSlhDsa(variant).verify(toBuf(signatureHex), toBuf(messageHex), toBuf(publicKeyHex));
 }

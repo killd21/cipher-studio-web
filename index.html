@@ -535,6 +535,9 @@
       <div class="dock-item" data-panel="mldsa">
         <div class="dock-icon">DS</div><span class="dock-label">ML-DSA</span>
       </div>
+      <div class="dock-item" data-panel="slhdsa">
+        <div class="dock-icon">SL</div><span class="dock-label">SLH-DSA</span>
+      </div>
 
       <div class="dock-group-title">Utility</div>
       <div class="dock-item" data-panel="mac">
@@ -554,6 +557,12 @@
       </div>
       <div class="dock-item" data-panel="asciihex">
         <div class="dock-icon">AH</div><span class="dock-label">ASCII ↔ Hex</span>
+      </div>
+      <div class="dock-item" data-panel="base64">
+        <div class="dock-icon">B6</div><span class="dock-label">Base64</span>
+      </div>
+      <div class="dock-item" data-panel="kdf">
+        <div class="dock-icon">KD</div><span class="dock-label">KDF</span>
       </div>
     </nav>
 
@@ -882,6 +891,10 @@
                 <option value="sha3-512">SHA3-512</option>
                 <option value="shake128">SHAKE128</option>
                 <option value="shake256">SHAKE256</option>
+                <option value="blake2b">BLAKE2b</option>
+                <option value="blake2s">BLAKE2s</option>
+                <option value="blake3">BLAKE3</option>
+                <option value="ripemd160">RIPEMD-160</option>
               </select>
               <div class="input-group hidden" id="hash-outlen-group">
                 <label>Output Length (bytes)</label>
@@ -1338,6 +1351,133 @@
           </div>
         </div>
 
+        <!-- ═══════════════ SLH-DSA Panel ═══════════════ -->
+        <div id="panel-slhdsa" class="panel">
+          <div class="bento-header">
+            <h1 class="bento-title">SLH-DSA</h1>
+            <p class="bento-subtitle">FIPS 205 — Stateless Hash-Based Digital Signature (SPHINCS+)</p>
+          </div>
+          <div class="bento-grid">
+            <div class="bento-card" style="grid-column: 1 / -1;">
+              <div class="card-title">Configuration</div>
+              <div class="seg-group">
+                <select id="slhdsa-op" onchange="updateSlhdsaFields()">
+                  <option value="keygen">Key Generation</option>
+                  <option value="sign">Sign</option>
+                  <option value="verify">Verify</option>
+                </select>
+                <select id="slhdsa-variant">
+                  <option value="shake-128f" selected>SHAKE-128f</option>
+                  <option value="shake-192f">SHAKE-192f</option>
+                  <option value="shake-256f">SHAKE-256f</option>
+                  <option value="sha2-128f">SHA2-128f</option>
+                  <option value="sha2-192f">SHA2-192f</option>
+                  <option value="sha2-256f">SHA2-256f</option>
+                </select>
+              </div>
+            </div>
+            <div class="bento-card" id="slhdsa-keygen-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Key Generation (may take seconds)</div>
+              <div class="action-row" style="margin-bottom:16px;"><button class="btn-primary" onclick="runSlhdsa()">Generate Keys</button></div>
+              <div class="bento-grid">
+                <div class="input-group"><label>Public Key</label><textarea id="slhdsa-pk-out" readonly></textarea></div>
+                <div class="input-group"><label>Secret Key</label><textarea id="slhdsa-sk-out" readonly></textarea></div>
+              </div>
+            </div>
+            <div class="bento-card hidden" id="slhdsa-sign-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Sign (signature can be ~50KB)</div>
+              <div class="input-group"><label>Secret Key</label><textarea id="slhdsa-sk-in"></textarea></div>
+              <div class="input-group"><label>Message (hex)</label><textarea id="slhdsa-msg-sign"></textarea></div>
+              <div class="action-row"><button class="btn-primary" onclick="runSlhdsa()">Sign</button></div>
+              <div class="input-group"><label>Signature</label><textarea id="slhdsa-sig-out" readonly style="min-height:120px;"></textarea></div>
+            </div>
+            <div class="bento-card hidden" id="slhdsa-verify-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Verify</div>
+              <div class="input-group"><label>Public Key</label><textarea id="slhdsa-pk-in"></textarea></div>
+              <div class="input-group"><label>Message (hex)</label><textarea id="slhdsa-msg-verify"></textarea></div>
+              <div class="input-group"><label>Signature</label><textarea id="slhdsa-sig-in" style="min-height:120px;"></textarea></div>
+              <div class="action-row"><button class="btn-primary" onclick="runSlhdsa()">Verify</button></div>
+              <div class="result-box" id="slhdsa-verify-result" style="min-height:40px;"></div>
+            </div>
+            <div class="error-msg" id="slhdsa-error" style="grid-column: 1 / -1;"></div>
+          </div>
+        </div>
+
+        <!-- ═══════════════ Base64 Panel ═══════════════ -->
+        <div id="panel-base64" class="panel">
+          <div class="bento-header">
+            <h1 class="bento-title">Base64</h1>
+            <p class="bento-subtitle">RFC 4648 — Base64 / Base64url Encoding</p>
+          </div>
+          <div class="bento-grid">
+            <div class="bento-card">
+              <div class="card-title">Configuration</div>
+              <div class="seg-group" style="margin-bottom:12px;">
+                <select id="b64-op">
+                  <option value="hexToB64">Hex → Base64</option>
+                  <option value="b64ToHex">Base64 → Hex</option>
+                  <option value="hexToB64Url">Hex → Base64url</option>
+                  <option value="b64UrlToHex">Base64url → Hex</option>
+                </select>
+              </div>
+              <div class="input-group"><label>Input</label><textarea id="b64-input" placeholder="Input data..."></textarea></div>
+              <div class="action-row">
+                <button class="btn-primary" onclick="runBase64()">Convert</button>
+                <button class="btn-secondary" onclick="clearPanel('base64')">Clear</button>
+              </div>
+            </div>
+            <div class="bento-card">
+              <div class="card-title">Output</div>
+              <div style="display:flex; gap:10px; height:100%;"><div class="result-box" id="b64-result" style="white-space:pre-wrap;"></div><button class="btn-secondary btn-icon-only" onclick="copyResult('b64-result')">📋</button></div>
+              <div class="error-msg" id="b64-error"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════ KDF Panel ═══════════════ -->
+        <div id="panel-kdf" class="panel">
+          <div class="bento-header">
+            <h1 class="bento-title">KDF</h1>
+            <p class="bento-subtitle">RFC 5869 (HKDF) · RFC 8018 (PBKDF2) — Key Derivation</p>
+          </div>
+          <div class="bento-grid">
+            <div class="bento-card" style="grid-column: 1 / -1;">
+              <div class="card-title">Configuration</div>
+              <div class="seg-group">
+                <select id="kdf-alg" onchange="updateKdfFields()">
+                  <option value="hkdf" selected>HKDF</option>
+                  <option value="pbkdf2">PBKDF2</option>
+                </select>
+                <select id="kdf-hash">
+                  <option value="sha256" selected>SHA-256</option>
+                  <option value="sha384">SHA-384</option>
+                  <option value="sha512">SHA-512</option>
+                  <option value="sha3-256">SHA3-256</option>
+                  <option value="sha3-384">SHA3-384</option>
+                  <option value="sha3-512">SHA3-512</option>
+                </select>
+              </div>
+            </div>
+            <div class="bento-card">
+              <div class="card-title">Parameters</div>
+              <div class="input-group" id="kdf-ikm-group"><label id="kdf-ikm-label">IKM / Password (hex)</label><input type="text" id="kdf-ikm" placeholder="Input key material hex..."></div>
+              <div class="input-group"><label>Salt (hex)</label><input type="text" id="kdf-salt" placeholder="Salt hex (optional for HKDF)..."></div>
+              <div class="input-group" id="kdf-info-group"><label>Info (hex, HKDF only)</label><input type="text" id="kdf-info" placeholder="Application context info hex..."></div>
+              <div class="input-group hidden" id="kdf-iter-group"><label>Iterations</label><input type="number" id="kdf-iter" value="10000" min="1"></div>
+              <div class="input-group"><label>Output Length (bytes)</label><input type="number" id="kdf-len" value="32" min="1" max="512"></div>
+              <div class="action-row">
+                <button class="btn-primary" onclick="runKdf()">Derive</button>
+                <button class="btn-secondary" onclick="clearPanel('kdf')">Clear</button>
+              </div>
+            </div>
+            <div class="bento-card">
+              <div class="card-title">Derived Key</div>
+              <div style="display:flex; gap:10px; height:100%;"><div class="result-box" id="kdf-result"></div><button class="btn-secondary btn-icon-only" onclick="copyResult('kdf-result')">📋</button></div>
+              <div class="error-msg" id="kdf-error"></div>
+            </div>
+          </div>
+        </div>
+
       </div><!-- /panel-container -->
     </main>
 
@@ -1710,9 +1850,11 @@
       const alg = document.getElementById('hash-alg').value;
       const outlenGroup = document.getElementById('hash-outlen-group');
       const outlenInput = document.getElementById('hash-outlen');
-      if (alg === 'shake128' || alg === 'shake256') {
+      const variableLen = ['shake128', 'shake256', 'blake2b', 'blake2s', 'blake3'];
+      if (variableLen.includes(alg)) {
         outlenGroup.classList.remove('hidden');
-        outlenInput.value = alg === 'shake128' ? '32' : '64';
+        const defaults = { shake128: 32, shake256: 64, blake2b: 64, blake2s: 32, blake3: 32 };
+        outlenInput.value = String(defaults[alg]);
       } else {
         outlenGroup.classList.add('hidden');
       }
@@ -1723,7 +1865,8 @@
       const data = normalizeHex(document.getElementById('hash-data').value);
       try {
         let outputLen;
-        if (alg === 'shake128' || alg === 'shake256') {
+        const variableLen = ['shake128', 'shake256', 'blake2b', 'blake2s', 'blake3'];
+        if (variableLen.includes(alg)) {
           outputLen = parseInt(document.getElementById('hash-outlen').value, 10);
           if (!outputLen || outputLen < 1) { showError('hash-error', 'Output length must be >= 1'); return; }
         }
@@ -1939,6 +2082,109 @@
           addLog('X25519 Secret', secret.substring(0, 32) + '…');
         }
       } catch (e) { showError('x25519-error', e.message); addLog('X25519 ERROR', e.message); }
+    }
+
+    // ═══════════════════════════════ SLH-DSA ═══════════════════════════════
+    function updateSlhdsaFields() {
+      const op = document.getElementById('slhdsa-op').value;
+      document.getElementById('slhdsa-keygen-section')?.classList.toggle('hidden', op !== 'keygen');
+      document.getElementById('slhdsa-sign-section')?.classList.toggle('hidden', op !== 'sign');
+      document.getElementById('slhdsa-verify-section')?.classList.toggle('hidden', op !== 'verify');
+    }
+
+    async function runSlhdsa() {
+      const op = document.getElementById('slhdsa-op').value;
+      const variant = document.getElementById('slhdsa-variant').value;
+      const errEl = document.getElementById('slhdsa-error'); errEl.textContent = '';
+      try {
+        if (op === 'keygen') {
+          const res = await window.electronAPI.crypto.pqc('slhKeygen', variant);
+          document.getElementById('slhdsa-pk-out').value = res.publicKey;
+          document.getElementById('slhdsa-sk-out').value = res.secretKey;
+          addLog(`SLH-DSA ${variant} Keygen`, 'OK');
+        } else if (op === 'sign') {
+          const sk = normalizeHex(document.getElementById('slhdsa-sk-in').value);
+          const msg = normalizeHex(document.getElementById('slhdsa-msg-sign').value);
+          const sig = await window.electronAPI.crypto.pqc('slhSign', variant, sk, msg);
+          document.getElementById('slhdsa-sig-out').value = sig;
+          addLog(`SLH-DSA ${variant} Sign`, `${sig.length / 2} bytes`);
+        } else {
+          const pk = normalizeHex(document.getElementById('slhdsa-pk-in').value);
+          const msg = normalizeHex(document.getElementById('slhdsa-msg-verify').value);
+          const sig = normalizeHex(document.getElementById('slhdsa-sig-in').value);
+          const ok = await window.electronAPI.crypto.pqc('slhVerify', variant, pk, msg, sig);
+          document.getElementById('slhdsa-verify-result').textContent = ok ? '✅ Valid Signature' : '❌ Invalid Signature';
+          document.getElementById('slhdsa-verify-result').style.color = ok ? 'var(--ok)' : 'var(--err)';
+          addLog(`SLH-DSA ${variant} Verify`, ok ? 'VALID' : 'INVALID');
+        }
+      } catch (e) { showError('slhdsa-error', e.message); addLog('SLH-DSA ERROR', e.message); }
+    }
+
+    // ═══════════════════════════════ Base64 ═══════════════════════════════
+    async function runBase64() {
+      const op = document.getElementById('b64-op').value;
+      const input = document.getElementById('b64-input').value.trim();
+      try {
+        let result;
+        // Base64 ops use local utility, not crypto bridge — call directly via API
+        const apiOp = op;
+        result = await callBase64(apiOp, input);
+        showRawResult('b64-result', result, 'b64-error');
+        addLog(`Base64 ${op}`, result.substring(0, 48) + (result.length > 48 ? '…' : ''));
+      } catch (e) { showError('b64-error', e.message); addLog('Base64 ERROR', e.message); }
+    }
+
+    async function callBase64(op, input) {
+      // Inline Base64 conversion (no crypto bridge needed — pure encoding)
+      const hexToBytes = (h) => {
+        const clean = h.replace(/\s+/g, '');
+        const out = new Uint8Array(clean.length / 2);
+        for (let i = 0; i < out.length; i++) out[i] = parseInt(clean.substr(i * 2, 2), 16);
+        return out;
+      };
+      const bytesToHex = (b) => Array.from(b).map(x => x.toString(16).padStart(2, '0').toUpperCase()).join('');
+      const bytesToB64 = (b) => { let s = ''; for (const x of b) s += String.fromCharCode(x); return btoa(s); };
+      const b64ToBytes = (s) => { const d = atob(s); const o = new Uint8Array(d.length); for (let i = 0; i < d.length; i++) o[i] = d.charCodeAt(i); return o; };
+
+      if (op === 'hexToB64') return bytesToB64(hexToBytes(input));
+      if (op === 'b64ToHex') return bytesToHex(b64ToBytes(input.replace(/\s+/g, '')));
+      if (op === 'hexToB64Url') return bytesToB64(hexToBytes(input)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      if (op === 'b64UrlToHex') {
+        let s = input.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
+        while (s.length % 4 !== 0) s += '=';
+        return bytesToHex(b64ToBytes(s));
+      }
+      throw new Error(`Unknown base64 op: ${op}`);
+    }
+
+    // ═══════════════════════════════ KDF ═══════════════════════════════
+    function updateKdfFields() {
+      const alg = document.getElementById('kdf-alg').value;
+      const isPbkdf2 = alg === 'pbkdf2';
+      document.getElementById('kdf-iter-group')?.classList.toggle('hidden', !isPbkdf2);
+      document.getElementById('kdf-info-group')?.classList.toggle('hidden', isPbkdf2);
+      document.getElementById('kdf-ikm-label').textContent = isPbkdf2 ? 'Password (hex)' : 'IKM (hex)';
+    }
+
+    async function runKdf() {
+      const alg = document.getElementById('kdf-alg').value;
+      const hash = document.getElementById('kdf-hash').value;
+      const ikm = normalizeHex(document.getElementById('kdf-ikm').value);
+      const salt = normalizeHex(document.getElementById('kdf-salt').value);
+      const len = parseInt(document.getElementById('kdf-len').value, 10);
+      try {
+        let result;
+        if (alg === 'hkdf') {
+          const info = normalizeHex(document.getElementById('kdf-info').value);
+          result = await window.electronAPI.crypto.kdf('hkdf', hash, ikm, salt, info, len);
+        } else {
+          const iter = parseInt(document.getElementById('kdf-iter').value, 10);
+          if (!iter || iter < 1) { showError('kdf-error', 'Iterations must be >= 1'); return; }
+          result = await window.electronAPI.crypto.kdf('pbkdf2', hash, ikm, salt, iter, len);
+        }
+        showResult('kdf-result', result, 'kdf-error');
+        addLog(`KDF ${alg.toUpperCase()}-${hash}`, result.substring(0, 48) + (result.length > 48 ? '…' : ''));
+      } catch (e) { showError('kdf-error', e.message); addLog('KDF ERROR', e.message); }
     }
 
     // ═══════════════════════════════ ML-KEM ═══════════════════════════════

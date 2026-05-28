@@ -24,6 +24,7 @@ type CryptoBridge = {
   ecc:     (op: string, ...args: unknown[]) => Promise<unknown>;
   pqc:     (op: string, ...args: unknown[]) => Promise<unknown>;
   chacha:  (op: string, ...args: unknown[]) => Promise<Hex>;
+  kdf:     (op: string, ...args: unknown[]) => Promise<Hex>;
 };
 
 export type ElectronAPI = {
@@ -55,6 +56,7 @@ import * as seed from './crypto/seed.ts';
 import * as ecc from './crypto/ecc.ts';
 import * as pqc from './crypto/pqc.ts';
 import * as chacha from './crypto/chacha.ts';
+import * as kdf from './crypto/kdf.ts';
 
 type PaddingOp = keyof typeof padding;
 
@@ -234,6 +236,27 @@ export function installElectronAPI(): void {
             throw new Error(`Unknown ECC op: ${op}`);
         }
       },
+      kdf: async (op: string, ...args: unknown[]): Promise<Hex> => {
+        switch (op) {
+          case 'hkdf':
+            return kdf.hkdfDerive(
+              args[0] as string, args[1] as string, args[2] as string,
+              args[3] as string, args[4] as number,
+            );
+          case 'hkdfExtract':
+            return kdf.hkdfExtract(args[0] as string, args[1] as string, args[2] as string);
+          case 'hkdfExpand':
+            return kdf.hkdfExpand(
+              args[0] as string, args[1] as string, args[2] as string, args[3] as number,
+            );
+          case 'pbkdf2':
+            return kdf.pbkdf2Derive(
+              args[0] as string, args[1] as string, args[2] as string,
+              args[3] as number, args[4] as number,
+            );
+          default: throw new Error(`Unknown KDF op: ${op}`);
+        }
+      },
       chacha: async (op: string, ...args: unknown[]): Promise<Hex> => {
         const key = args[0] as string;
         const data = args[1] as string;
@@ -262,6 +285,14 @@ export function installElectronAPI(): void {
           case 'dsaVerify':
             return pqc.dsaVerify(
               args[0] as number | string, args[1] as string, args[2] as string, args[3] as string,
+            );
+          case 'slhKeygen':
+            return pqc.slhKeygen(args[0] as string);
+          case 'slhSign':
+            return pqc.slhSign(args[0] as string, args[1] as string, args[2] as string);
+          case 'slhVerify':
+            return pqc.slhVerify(
+              args[0] as string, args[1] as string, args[2] as string, args[3] as string,
             );
           default:
             throw new Error(`Unknown PQC op: ${op}`);
