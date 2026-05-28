@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { digest } from '../../src/crypto/hash.ts';
 import { 
-  ecbEncrypt, cbcEncrypt, cbcDecrypt, ctrEncrypt, 
-  gcmEncrypt, gcmDecrypt 
+  ecbEncrypt, ecbDecrypt, cbcEncrypt, cbcDecrypt, ctrEncrypt, 
+  gcmEncrypt, gcmDecrypt
 } from '../../src/crypto/aes.ts';
 
 describe('Phase 2: Hash & AES', () => {
@@ -24,11 +24,46 @@ describe('Phase 2: Hash & AES', () => {
   });
 
   describe('AES', () => {
-    it('NIST AES-128 ECB test vector', () => {
+    it('NIST AES-128 ECB Encrypttest vector', () => {
       const key = '2b7e151628aed2a6abf7158809cf4f3c';
       const pt  = '6bc1bee22e409f96e93d7e117393172a';
-      const expected = '3AD77BB40D7A3660A89ECAF32466EF97';
-      expect(ecbEncrypt(key, pt)).toBe(expected);
+      const ct = '3AD77BB40D7A3660A89ECAF32466EF97';
+      expect(ecbEncrypt(key, pt)).toBe(ct);
+    });
+
+    it('NIST AES-128 ECB Decrypt test vector', () => {
+      const key = '2b7e151628aed2a6abf7158809cf4f3c';
+      const pt  = 'AE2D8A571E03AC9C9EB76FAC45AF8E51';
+      const ct = 'F5D3D58503B9699DE785895A96FDBAAF';
+      expect(ecbDecrypt(key, ct)).toBe(pt);
+    });
+
+    it('NIST AES-192 ECB Encrypt test vector', () => {
+      const key = '8E73B0F7DA0E6452C810F32B809079E562F8EAD2522C6B7B';
+      const pt  = '6bc1bee22e409f96e93d7e117393172a';
+      const ct = 'BD334F1D6E45F25FF712A214571FA5CC';
+      expect(ecbEncrypt(key, pt)).toBe(ct);
+    });
+
+    it('NIST AES-192 ECB Decrypt test vector', () => {
+      const key = '8E73B0F7DA0E6452C810F32B809079E562F8EAD2522C6B7B';
+      const pt  = 'AE2D8A571E03AC9C9EB76FAC45AF8E51';
+      const ct = '974104846D0AD3AD7734ECB3ECEE4EEF';
+      expect(ecbDecrypt(key, ct)).toBe(pt);
+    });
+
+    it('NIST AES-256 ECB Encrypt test vector', () => {
+      const key = '603DEB1015CA71BE2B73AEF0857D77811F352C073B6108D72D9810A30914DFF4';
+      const pt  = '6bc1bee22e409f96e93d7e117393172a';
+      const ct = 'F3EED1BDB5D2A03C064B5A7E3DB181F8';
+      expect(ecbEncrypt(key, pt)).toBe(ct);
+    });
+
+    it('NIST AES-256 ECB Decrypt test vector', () => {
+      const key = '603DEB1015CA71BE2B73AEF0857D77811F352C073B6108D72D9810A30914DFF4';
+      const pt  = 'AE2D8A571E03AC9C9EB76FAC45AF8E51';
+      const ct = '591CCB10D410ED26DC5BA74A31362870';
+      expect(ecbDecrypt(key, ct)).toBe(pt);
     });
 
     it('AES-128 CBC roundtrip', () => {

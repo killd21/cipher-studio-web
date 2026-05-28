@@ -16,7 +16,7 @@ type CryptoBridge = {
   aria:    (op: string, ...args: unknown[]) => Promise<Hex>;
   seed:    (op: string, ...args: unknown[]) => Promise<Hex>;
   mac:     (op: string, ...args: unknown[]) => Promise<Hex>;
-  hash:    (alg: string, data: Hex) => Promise<Hex>;
+  hash:    (alg: string, data: Hex, outputLen?: number) => Promise<Hex>;
   padding: (op: string, data: Hex, blockSize: number) => Promise<Hex>;
   random:  (length: number) => Promise<Hex>;
   bitwise: (op: string, a: Hex, b: Hex) => Promise<Hex>;
@@ -87,6 +87,8 @@ export function installElectronAPI(): void {
           case 'ctrDecrypt': return aes.ctrDecrypt(key, data, iv);
           case 'gcmEncrypt': return aes.gcmEncrypt(key, data, iv!, aad);
           case 'gcmDecrypt': return aes.gcmDecrypt(key, data, iv!, aad);
+          case 'cfbEncrypt': return aes.cfbEncrypt(key, data, iv);
+          case 'cfbDecrypt': return aes.cfbDecrypt(key, data, iv);
           default: throw new Error(`Unknown AES op: ${op}`);
         }
       },
@@ -149,8 +151,8 @@ export function installElectronAPI(): void {
             throw new Error(`Unknown MAC op: ${op}`);
         }
       },
-      hash: async (alg: string, data: Hex): Promise<Hex> => {
-        return hash.digest(alg, data);
+      hash: async (alg: string, data: Hex, outputLen?: number): Promise<Hex> => {
+        return hash.digest(alg, data, outputLen);
       },
 
       padding: async (op: string, data: Hex, blockSize: number): Promise<Hex> => {
@@ -164,8 +166,15 @@ export function installElectronAPI(): void {
       },
 
       bitwise: async (op: string, a: Hex, b: Hex): Promise<Hex> => {
-        if (op === 'xor') return bitwise.xor(a, b);
-        throw new Error(`Unknown bitwise op: ${op}`);
+        switch (op) {
+          case 'xor': return bitwise.xor(a, b);
+          case 'and': return bitwise.and(a, b);
+          case 'or':  return bitwise.or(a, b);
+          case 'not': return bitwise.not(a);
+          case 'shl': return bitwise.shiftLeft(a, parseInt(b, 10));
+          case 'shr': return bitwise.shiftRight(a, parseInt(b, 10));
+          default: throw new Error(`Unknown bitwise op: ${op}`);
+        }
       },
 
       rsa: async (op: string, ...args: unknown[]): Promise<Hex | { n: Hex; d: Hex }> => {

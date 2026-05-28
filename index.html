@@ -625,6 +625,7 @@
                   <option value="ECB">ECB Mode</option>
                   <option value="CBC">CBC Mode</option>
                   <option value="CTR">CTR Mode</option>
+                  <option value="CFB">CFB Mode</option>
                   <option value="GCM">GCM Mode (AEAD)</option>
                 </select>
                 <select id="aes-dir">
@@ -751,6 +752,7 @@
                 <select id="mlkem-variant">
                   <option value="512">ML-KEM-512</option>
                   <option value="768" selected>ML-KEM-768</option>
+                  <option value="1024">ML-KEM-1024</option>
                 </select>
               </div>
             </div>
@@ -830,7 +832,15 @@
                   <option value="desMac">DES MAC</option>
                   <option value="hmac">HMAC</option>
                 </select>
-                <select id="mac-halg"><option value="sha256">SHA-256</option></select>
+                <select id="mac-halg">
+                  <option value="sha1">SHA-1</option>
+                  <option value="sha256" selected>SHA-256</option>
+                  <option value="sha384">SHA-384</option>
+                  <option value="sha512">SHA-512</option>
+                  <option value="sha3-256">SHA3-256</option>
+                  <option value="sha3-384">SHA3-384</option>
+                  <option value="sha3-512">SHA3-512</option>
+                </select>
                 <select id="mac-pad"><option value="iso9797m2">ISO M2</option><option value="none">None</option></select>
               </div>
             </div>
@@ -849,10 +859,25 @@
 
         <!-- ═══════════════ HASH Panel ═══════════════ -->
         <div class="panel" id="panel-hash">
-          <div class="bento-header"><h1 class="bento-title">Hash</h1><p class="bento-subtitle">FIPS 180-4 (SHA-1/256/384/512) · RFC 1321 (MD5)</p></div>
+          <div class="bento-header"><h1 class="bento-title">Hash</h1><p class="bento-subtitle">FIPS 180-4 · FIPS 202 (SHA-3) · RFC 1321 (MD5)</p></div>
           <div class="bento-grid">
             <div class="bento-card">
-              <select id="hash-alg" style="margin-bottom:10px;"><option value="sha256">SHA-256</option></select>
+              <select id="hash-alg" style="margin-bottom:10px;" onchange="updateHashFields()">
+                <option value="md5">MD5</option>
+                <option value="sha1">SHA-1</option>
+                <option value="sha256" selected>SHA-256</option>
+                <option value="sha384">SHA-384</option>
+                <option value="sha512">SHA-512</option>
+                <option value="sha3-256">SHA3-256</option>
+                <option value="sha3-384">SHA3-384</option>
+                <option value="sha3-512">SHA3-512</option>
+                <option value="shake128">SHAKE128</option>
+                <option value="shake256">SHAKE256</option>
+              </select>
+              <div class="input-group hidden" id="hash-outlen-group">
+                <label>Output Length (bytes)</label>
+                <input type="number" id="hash-outlen" value="32" min="1" max="512">
+              </div>
               <div class="input-group"><label>Data (hex)</label><textarea id="hash-data" placeholder="Data hex to hash (empty = hash of empty string)..."></textarea></div>
               <div class="action-row"><button class="btn-primary" onclick="runHash()">Hash</button></div>
             </div>
@@ -1095,16 +1120,27 @@
         <!-- ═══════════════ Bitwise Panel ═══════════════ -->
         <div id="panel-bitwise" class="panel">
           <div class="bento-header">
-            <h1 class="bento-title">Bitwise XOR</h1>
-            <p class="bento-subtitle">Bitwise XOR — Hex String Exclusive-OR</p>
+            <h1 class="bento-title">Bitwise</h1>
+            <p class="bento-subtitle">Bitwise Operations — XOR, AND, OR, NOT, Shift</p>
           </div>
           <div class="bento-grid">
             <div class="bento-card">
               <div class="card-title">Inputs</div>
+              <div class="seg-group" style="margin-bottom:12px;">
+                <select id="bw-op" onchange="updateBitwiseFields()">
+                  <option value="xor">XOR</option>
+                  <option value="and">AND</option>
+                  <option value="or">OR</option>
+                  <option value="not">NOT</option>
+                  <option value="shl">Shift Left</option>
+                  <option value="shr">Shift Right</option>
+                </select>
+              </div>
               <div class="input-group"><label>Hex A</label><input type="text" id="bw-a" placeholder="e.g. AABB1234..."></div>
-              <div class="input-group"><label>Hex B</label><input type="text" id="bw-b" placeholder="e.g. 11223344..."></div>
+              <div class="input-group" id="bw-b-group"><label>Hex B</label><input type="text" id="bw-b" placeholder="e.g. 11223344..."></div>
+              <div class="input-group hidden" id="bw-shift-group"><label>Shift Bits</label><input type="number" id="bw-shift" value="1" min="0" max="256"></div>
               <div class="action-row">
-                <button class="btn-primary" onclick="runXor()">XOR</button>
+                <button class="btn-primary" onclick="runBitwise()">Execute</button>
                 <button class="btn-secondary" onclick="clearPanel('bitwise')">Clear</button>
               </div>
             </div>
@@ -1306,22 +1342,20 @@
       const el = document.getElementById('aes-mode');
       if(!el) return;
       const mode = el.value;
-      const isCtr = mode === 'CTR';
+      const isStream = mode === 'CTR' || mode === 'CFB';
       const isEcb = mode === 'ECB';
       const isGcm = mode === 'GCM';
-      
+
       document.getElementById('aes-iv-group')?.classList.toggle('hidden', isEcb);
       document.getElementById('aes-aad-group')?.classList.toggle('hidden', !isGcm);
-      
-      // Fix: Specifically target the aes-pad select's parent, not the entire row
+
       const padSelect = document.getElementById('aes-pad');
       if (padSelect && padSelect.parentElement) {
-        padSelect.classList.toggle('hidden', isCtr || isGcm);
-        // If your CSS hides the parent (seg-group) incorrectly, we just hide the select element itself
+        padSelect.classList.toggle('hidden', isStream || isGcm);
       }
-      
+
       const label = document.getElementById('aes-iv-label');
-      if(label) label.textContent = (isCtr || isGcm) ? 'Nonce (12/16 bytes hex)' : 'IV (16 bytes hex)';
+      if(label) label.textContent = (mode === 'CTR' || isGcm) ? 'Nonce (12/16 bytes hex)' : 'IV (16 bytes hex)';
     }
     function updateRsaFields() {
       const el = document.getElementById('rsa-op'); if(!el) return;
@@ -1346,8 +1380,8 @@
       const isDesBased = alg === 'desMac' || alg === 'desTdesMac' || alg === 'desFullMac';
       document.getElementById('mac-iv-group')?.classList.toggle('hidden', !(alg === 'desMac' || alg === 'desTdesMac'));
       document.getElementById('mac-len-group')?.classList.toggle('hidden', alg !== 'desMac');
-      document.getElementById('mac-halg')?.parentElement?.classList.toggle('hidden', alg !== 'hmac');
-      document.getElementById('mac-pad')?.parentElement?.classList.toggle('hidden', !isDesBased);
+      document.getElementById('mac-halg')?.classList.toggle('hidden', alg !== 'hmac');
+      document.getElementById('mac-pad')?.classList.toggle('hidden', !isDesBased);
     }
     function updateEcdsaFields() {
       const op = document.getElementById('ecdsa-op')?.value;
@@ -1424,7 +1458,8 @@
       const isEcb = mode === 'ECB';
       const isGcm = mode === 'GCM';
       const isCtr = mode === 'CTR';
-      const isNoPadMode = isCtr || isGcm;
+      const isCfb = mode === 'CFB';
+      const isNoPadMode = isCtr || isGcm || isCfb;
       
       const nonce = (!isEcb) ? normalizeHex(document.getElementById('aes-iv').value) : '';
       const aad = isGcm ? normalizeHex(document.getElementById('aes-aad').value) : '';
@@ -1533,11 +1568,28 @@
     }
 
     // ═══════════════════════════════ Hash ═══════════════════════════════
+    function updateHashFields() {
+      const alg = document.getElementById('hash-alg').value;
+      const outlenGroup = document.getElementById('hash-outlen-group');
+      const outlenInput = document.getElementById('hash-outlen');
+      if (alg === 'shake128' || alg === 'shake256') {
+        outlenGroup.classList.remove('hidden');
+        outlenInput.value = alg === 'shake128' ? '32' : '64';
+      } else {
+        outlenGroup.classList.add('hidden');
+      }
+    }
+
     async function runHash() {
       const alg = document.getElementById('hash-alg').value;
       const data = normalizeHex(document.getElementById('hash-data').value);
       try {
-        const result = await window.electronAPI.crypto.hash(alg, data);
+        let outputLen;
+        if (alg === 'shake128' || alg === 'shake256') {
+          outputLen = parseInt(document.getElementById('hash-outlen').value, 10);
+          if (!outputLen || outputLen < 1) { showError('hash-error', 'Output length must be >= 1'); return; }
+        }
+        const result = await window.electronAPI.crypto.hash(alg, data, outputLen);
         showResult('hash-result', result, 'hash-error');
         addLog(`Hash ${alg}`, result.substring(0, 48) + (result.length > 48 ? '…' : ''));
       } catch (e) { showError('hash-error', e.message); addLog(`Hash ERROR`, e.message); }
@@ -1611,15 +1663,37 @@
       } catch (e) { showError('pad-error', e.message); addLog(`Padding ERROR`, e.message); }
     }
 
-    // ═══════════════════════════════ XOR ═══════════════════════════════
-    async function runXor() {
+    // ═══════════════════════════════ Bitwise ═══════════════════════════════
+    function updateBitwiseFields() {
+      const op = document.getElementById('bw-op').value;
+      const bGroup = document.getElementById('bw-b-group');
+      const shiftGroup = document.getElementById('bw-shift-group');
+      if (op === 'not') {
+        bGroup.classList.add('hidden');
+        shiftGroup.classList.add('hidden');
+      } else if (op === 'shl' || op === 'shr') {
+        bGroup.classList.add('hidden');
+        shiftGroup.classList.remove('hidden');
+      } else {
+        bGroup.classList.remove('hidden');
+        shiftGroup.classList.add('hidden');
+      }
+    }
+
+    async function runBitwise() {
+      const op = document.getElementById('bw-op').value;
       const a = normalizeHex(document.getElementById('bw-a').value);
-      const b = normalizeHex(document.getElementById('bw-b').value);
+      let b = '';
+      if (op === 'shl' || op === 'shr') {
+        b = document.getElementById('bw-shift').value;
+      } else if (op !== 'not') {
+        b = normalizeHex(document.getElementById('bw-b').value);
+      }
       try {
-        const result = await window.electronAPI.crypto.bitwise('xor', a, b);
+        const result = await window.electronAPI.crypto.bitwise(op, a, b);
         showResult('bw-result', result, 'bw-error');
-        addLog('XOR', result.substring(0, 48) + (result.length > 48 ? '…' : ''));
-      } catch (e) { showError('bw-error', e.message); addLog(`XOR ERROR`, e.message); }
+        addLog(`Bitwise ${op.toUpperCase()}`, result.substring(0, 48) + (result.length > 48 ? '…' : ''));
+      } catch (e) { showError('bw-error', e.message); addLog(`Bitwise ERROR`, e.message); }
     }
 
     // ═══════════════════════════════ Random ═══════════════════════════════

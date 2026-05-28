@@ -1,11 +1,12 @@
 import { toBuf, toHex } from './hex-utils.ts';
-import { ml_kem512, ml_kem768 } from '@noble/post-quantum/ml-kem.js';
+import { ml_kem512, ml_kem768, ml_kem1024 } from '@noble/post-quantum/ml-kem.js';
 import { ml_dsa44, ml_dsa65, ml_dsa87 } from '@noble/post-quantum/ml-dsa.js';
 
 function getKem(variant: number | string) {
   if (variant === 512 || variant === '512') return ml_kem512;
   if (variant === 768 || variant === '768') return ml_kem768;
-  throw new Error(`ML-KEM variant must be 512 or 768, got: ${variant}`);
+  if (variant === 1024 || variant === '1024') return ml_kem1024;
+  throw new Error(`ML-KEM variant must be 512, 768, or 1024, got: ${variant}`);
 }
 
 function getDsa(variant: number | string) {

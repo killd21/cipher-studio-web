@@ -4,17 +4,21 @@ import * as padding from './padding.ts';
 import { hmac as nobleHmac } from '@noble/hashes/hmac.js';
 import { sha1 } from '@noble/hashes/legacy.js';
 import { sha256, sha384, sha512 } from '@noble/hashes/sha2.js';
+import { sha3_256, sha3_384, sha3_512 } from '@noble/hashes/sha3.js';
 import * as aes from './aes.ts';
 
 const hashFns: Record<string, (key: Uint8Array, msg: Uint8Array) => Uint8Array> = {
-  'sha1':   (k, m) => nobleHmac(sha1, k, m),
-  'sha-1':  (k, m) => nobleHmac(sha1, k, m),
-  'sha256': (k, m) => nobleHmac(sha256, k, m),
-  'sha-256':(k, m) => nobleHmac(sha256, k, m),
-  'sha384': (k, m) => nobleHmac(sha384, k, m),
-  'sha-384':(k, m) => nobleHmac(sha384, k, m),
-  'sha512': (k, m) => nobleHmac(sha512, k, m),
-  'sha-512':(k, m) => nobleHmac(sha512, k, m),
+  'sha1':     (k, m) => nobleHmac(sha1, k, m),
+  'sha-1':    (k, m) => nobleHmac(sha1, k, m),
+  'sha256':   (k, m) => nobleHmac(sha256, k, m),
+  'sha-256':  (k, m) => nobleHmac(sha256, k, m),
+  'sha384':   (k, m) => nobleHmac(sha384, k, m),
+  'sha-384':  (k, m) => nobleHmac(sha384, k, m),
+  'sha512':   (k, m) => nobleHmac(sha512, k, m),
+  'sha-512':  (k, m) => nobleHmac(sha512, k, m),
+  'sha3-256': (k, m) => nobleHmac(sha3_256, k, m),
+  'sha3-384': (k, m) => nobleHmac(sha3_384, k, m),
+  'sha3-512': (k, m) => nobleHmac(sha3_512, k, m),
 };
 
 export function hmac(type: string, key: string, msg: string): string {

@@ -1,5 +1,5 @@
 import { toBuf, toHex } from './hex-utils.ts';
-import { ecb, cbc, ctr, gcm } from '@noble/ciphers/aes.js';
+import { ecb, cbc, ctr, gcm, cfb } from '@noble/ciphers/aes.js';
 
 export function ecbEncrypt(key: string, data: string): string {
   const k = toBuf(key);
@@ -66,5 +66,23 @@ export function gcmDecrypt(key: string, data: string, nonce: string, aad?: strin
   const n = toBuf(nonce);
   const a = aad ? toBuf(aad) : undefined;
   const cipher = gcm(k, n, a);
+  return toHex(cipher.decrypt(d));
+}
+
+export function cfbEncrypt(key: string, data: string, iv?: string): string {
+  const k = toBuf(key);
+  const d = toBuf(data);
+  const ivBuf = iv ? toBuf(iv) : new Uint8Array(16);
+  if (ivBuf.length !== 16) throw new Error(`AES CFB: IV must be 16 bytes, got ${ivBuf.length}`);
+  const cipher = cfb(k, ivBuf);
+  return toHex(cipher.encrypt(d));
+}
+
+export function cfbDecrypt(key: string, data: string, iv?: string): string {
+  const k = toBuf(key);
+  const d = toBuf(data);
+  const ivBuf = iv ? toBuf(iv) : new Uint8Array(16);
+  if (ivBuf.length !== 16) throw new Error(`AES CFB: IV must be 16 bytes, got ${ivBuf.length}`);
+  const cipher = cfb(k, ivBuf);
   return toHex(cipher.decrypt(d));
 }
