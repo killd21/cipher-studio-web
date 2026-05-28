@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-theme="dark">
+<html data-theme="light">
 
 <head>
   <meta charset="utf-8">
@@ -364,7 +364,7 @@
     .log-line:last-child { border-bottom: none; }
     .log-time { color: var(--text-muted); }
     .log-op { color: var(--accent); }
-    .log-res { color: var(--text-primary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+    .log-res { color: var(--text-primary); word-break: break-all; white-space: pre-wrap; min-width: 0; }
 
     /* Segmented Custom */
     .seg-group { display: flex; gap: 8px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: var(--radius-sm); border: 1px solid var(--color-border); }
@@ -1492,22 +1492,22 @@
         </div>
 
       </div><!-- /panel-container -->
-    </main>
 
-    <!-- Floating Terminal Bottom Drawer -->
-    <div id="terminal-dock">
-      <div id="terminal-header" onclick="toggleTerminal()">
-        <div class="term-dot"></div>
-        <div class="term-title">SYSTEM_LOG // STATUS: ACTIVE</div>
-        <div class="term-actions">
-          <span style="font-family: var(--font-mono); font-size: 11px; margin-right:8px;">Events: <span id="log-count">0</span></span>
-          <button onclick="event.stopPropagation(); clearLog()">CLEAR</button>
+      <!-- Floating Terminal Drawer (within workspace) -->
+      <div id="terminal-dock">
+        <div id="terminal-header" onclick="toggleTerminal()">
+          <div class="term-dot"></div>
+          <div class="term-title">SYSTEM_LOG // STATUS: ACTIVE</div>
+          <div class="term-actions">
+            <span style="font-family: var(--font-mono); font-size: 11px; margin-right:8px;">Events: <span id="log-count">0</span></span>
+            <button onclick="event.stopPropagation(); clearLog()">CLEAR</button>
+          </div>
+        </div>
+        <div id="terminal-body">
+          <div id="log-entries"></div>
         </div>
       </div>
-      <div id="terminal-body">
-        <div id="log-entries"></div>
-      </div>
-    </div>
+    </main>
 
   </div><!-- /app-layout -->
 
@@ -1742,7 +1742,7 @@
         const result = await window.electronAPI.crypto.des(op, key, data, iv || undefined);
         const final = dir === 'Dec' ? removePadding(padAlg, result) : result;
         showResult('des-result', final, 'des-error');
-        addLog(`DES ${mode} ${dir}`, final.substring(0, 32) + (final.length > 32 ? '…' : ''));
+        addLog(`DES ${mode} ${dir}`, final);
       } catch (e) { showError('des-error', e.message); addLog(`DES ERROR`, e.message); }
     }
 
@@ -1776,7 +1776,7 @@
         }
         
         showResult('aes-result', final, 'aes-error');
-        addLog(`AES ${mode} ${dir}`, final.substring(0, 32) + (final.length > 32 ? '…' : ''));
+        addLog(`AES ${mode} ${dir}`, final);
       } catch (e) { showError('aes-error', e.message); addLog(`AES ERROR`, e.message); }
     }
 
@@ -1790,7 +1790,7 @@
           const input = normalizeHex(document.getElementById('rsa-input').value);
           const result = await window.electronAPI.crypto.rsa(op, n, exp, input);
           showResult('rsa-result', result, 'rsa-error');
-          addLog(`RSA ${op}`, result.substring(0, 32) + '…');
+          addLog(`RSA ${op}`, result);
         } else if (op === 'crtDecrypt') {
           const p = normalizeHex(document.getElementById('rsa-p').value);
           const q = normalizeHex(document.getElementById('rsa-q').value);
@@ -1800,14 +1800,14 @@
           const data = normalizeHex(document.getElementById('rsa-input').value);
           const result = await window.electronAPI.crypto.rsa('crtDecrypt', p, q, dp, dq, qi, data);
           showResult('rsa-result', result, 'rsa-error');
-          addLog('RSA CRT Dec', result.substring(0, 32) + '…');
+          addLog('RSA CRT Dec', result);
         } else {
           const p = normalizeHex(document.getElementById('rsa-p').value);
           const q = normalizeHex(document.getElementById('rsa-q').value);
           const e = normalizeHex(document.getElementById('rsa-e').value);
           const res = await window.electronAPI.crypto.rsa('crtToStandard', p, q, e);
           showRawResult('rsa-result', `N: ${res.n}\nD: ${res.d}`, 'rsa-error');
-          addLog('RSA CRT→Std', `N: ${res.n.substring(0, 16)}…`);
+          addLog('RSA CRT→Std', `N: ${res.n}`);
         }
       } catch (e) { showError('rsa-error', e.message); addLog(`RSA ERROR`, e.message); }
     }
@@ -1823,7 +1823,7 @@
       try {
         const result = await window.electronAPI.crypto.aria(op, key, data, iv || undefined);
         showResult('aria-result', result, 'aria-error');
-        addLog(`ARIA ${mode} ${dir}`, result.substring(0, 32) + (result.length > 32 ? '…' : ''));
+        addLog(`ARIA ${mode} ${dir}`, result);
       } catch (e) { showError('aria-error', e.message); addLog(`ARIA ERROR`, e.message); }
     }
 
@@ -1843,7 +1843,7 @@
           result = await window.electronAPI.crypto.seed(op, key, data, iv || undefined);
         }
         showResult('seed-result', result, 'seed-error');
-        addLog(`SEED ${mode} ${dir}`, result.substring(0, 32) + (result.length > 32 ? '…' : ''));
+        addLog(`SEED ${mode} ${dir}`, result);
       } catch (e) { showError('seed-error', e.message); addLog(`SEED ERROR`, e.message); }
     }
 
@@ -1864,7 +1864,7 @@
         else if (alg === 'desFullMac') result = await window.electronAPI.crypto.mac('desFullMac', key, data, padMethod);
         else result = await window.electronAPI.crypto.mac(alg, key, data);
         showResult('mac-result', result, 'mac-error');
-        addLog(`MAC ${alg}`, result.substring(0, 32) + (result.length > 32 ? '…' : ''));
+        addLog(`MAC ${alg}`, result);
       } catch (e) { showError('mac-error', e.message); addLog(`MAC ERROR`, e.message); }
     }
 
@@ -1895,7 +1895,7 @@
         }
         const result = await window.electronAPI.crypto.hash(alg, data, outputLen);
         showResult('hash-result', result, 'hash-error');
-        addLog(`Hash ${alg}`, result.substring(0, 48) + (result.length > 48 ? '…' : ''));
+        addLog(`Hash ${alg}`, result);
       } catch (e) { showError('hash-error', e.message); addLog(`Hash ERROR`, e.message); }
     }
 
@@ -1918,7 +1918,7 @@
           display = ok ? '✓ VALID' : '✗ INVALID';
         }
         showRawResult('ecdsa-result', display, 'ecdsa-error');
-        addLog(`ECDSA ${op} (${curve})`, display.replace(/\n/g, ' | ').substring(0, 64));
+        addLog(`ECDSA ${op} (${curve})`, display.replace(/\n/g, ' | '));
       } catch (e) { showError('ecdsa-error', e.message); addLog(`ECDSA ERROR`, e.message); }
     }
 
@@ -1930,7 +1930,7 @@
       try {
         const secret = await window.electronAPI.crypto.ecc('ecdhComputeSecret', priv, peer, curve);
         showResult('ecdh-result', secret, 'ecdh-error');
-        addLog(`ECDH (${curve})`, secret.substring(0, 32) + '…');
+        addLog(`ECDH (${curve})`, secret);
       } catch (e) { showError('ecdh-error', e.message); addLog(`ECDH ERROR`, e.message); }
     }
 
@@ -1952,7 +1952,7 @@
           display = ok ? '✓ VALID' : '✗ INVALID';
         }
         showRawResult('ecsdsa-result', display, 'ecsdsa-error');
-        addLog(`EC-SDSA ${op}`, display.replace(/\n/g, ' | ').substring(0, 64));
+        addLog(`EC-SDSA ${op}`, display.replace(/\n/g, ' | '));
       } catch (e) { showError('ecsdsa-error', e.message); addLog(`EC-SDSA ERROR`, e.message); }
     }
 
@@ -1965,7 +1965,7 @@
       try {
         const result = await window.electronAPI.crypto.padding(alg, data, bs);
         showResult('pad-result', result, 'pad-error');
-        addLog(`Padding ${alg}`, result.substring(0, 48) + (result.length > 48 ? '…' : ''));
+        addLog(`Padding ${alg}`, result);
       } catch (e) { showError('pad-error', e.message); addLog(`Padding ERROR`, e.message); }
     }
 
@@ -1998,7 +1998,7 @@
       try {
         const result = await window.electronAPI.crypto.bitwise(op, a, b);
         showResult('bw-result', result, 'bw-error');
-        addLog(`Bitwise ${op.toUpperCase()}`, result.substring(0, 48) + (result.length > 48 ? '…' : ''));
+        addLog(`Bitwise ${op.toUpperCase()}`, result);
       } catch (e) { showError('bw-error', e.message); addLog(`Bitwise ERROR`, e.message); }
     }
 
@@ -2009,7 +2009,7 @@
       try {
         const result = await window.electronAPI.crypto.random(len);
         showResult('rnd-result', result, 'rnd-error');
-        addLog(`Random ${len}B`, result.substring(0, 32) + (result.length > 32 ? '…' : ''));
+        addLog(`Random ${len}B`, result);
       } catch (e) { showError('rnd-error', e.message); addLog(`Random ERROR`, e.message); }
     }
 
@@ -2027,7 +2027,7 @@
           result = hex.match(/.{2}/g).map(h => String.fromCharCode(parseInt(h, 16))).join('');
         }
         showRawResult('asciihex-result', result, 'asciihex-error');
-        addLog(`ASCII↔Hex`, result.substring(0, 48) + (result.length > 48 ? '…' : ''));
+        addLog(`ASCII↔Hex`, result);
       } catch (e) { showError('asciihex-error', e.message); addLog(`ASCII↔Hex ERROR`, e.message); }
     }
 
@@ -2042,7 +2042,7 @@
       try {
         const result = await window.electronAPI.crypto.chacha(op, key, data, nonce, aad);
         showResult('chacha-result', result, 'chacha-error');
-        addLog(`ChaCha20 ${dir}`, result.substring(0, 32) + (result.length > 32 ? '…' : ''));
+        addLog(`ChaCha20 ${dir}`, result);
       } catch (e) { showError('chacha-error', e.message); addLog(`ChaCha20 ERROR`, e.message); }
     }
 
@@ -2068,7 +2068,7 @@
           const msg = normalizeHex(document.getElementById('ed25519-msg-sign').value);
           const sig = await window.electronAPI.crypto.ecc('ed25519Sign', sk, msg);
           document.getElementById('ed25519-sig-out').value = sig;
-          addLog('Ed25519 Sign', sig.substring(0, 32) + '…');
+          addLog('Ed25519 Sign', sig);
         } else {
           const pk = normalizeHex(document.getElementById('ed25519-pk-in').value);
           const msg = normalizeHex(document.getElementById('ed25519-msg-verify').value);
@@ -2102,7 +2102,7 @@
           const peer = normalizeHex(document.getElementById('x25519-peer-in').value);
           const secret = await window.electronAPI.crypto.ecc('x25519ComputeSecret', priv, peer);
           document.getElementById('x25519-secret-out').value = secret;
-          addLog('X25519 Secret', secret.substring(0, 32) + '…');
+          addLog('X25519 Secret', secret);
         }
       } catch (e) { showError('x25519-error', e.message); addLog('X25519 ERROR', e.message); }
     }
@@ -2153,7 +2153,7 @@
         const apiOp = op;
         result = await callBase64(apiOp, input);
         showRawResult('b64-result', result, 'b64-error');
-        addLog(`Base64 ${op}`, result.substring(0, 48) + (result.length > 48 ? '…' : ''));
+        addLog(`Base64 ${op}`, result);
       } catch (e) { showError('b64-error', e.message); addLog('Base64 ERROR', e.message); }
     }
 
@@ -2206,7 +2206,7 @@
           result = await window.electronAPI.crypto.kdf('pbkdf2', hash, ikm, salt, iter, len);
         }
         showResult('kdf-result', result, 'kdf-error');
-        addLog(`KDF ${alg.toUpperCase()}-${hash}`, result.substring(0, 48) + (result.length > 48 ? '…' : ''));
+        addLog(`KDF ${alg.toUpperCase()}-${hash}`, result);
       } catch (e) { showError('kdf-error', e.message); addLog('KDF ERROR', e.message); }
     }
 

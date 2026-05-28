@@ -9,13 +9,14 @@
 | 알고리즘 | 표준 | 블록 크기 | 키 길이 | 운용 모드 |
 |---------|------|----------|--------|----------|
 | DES / 3DES | FIPS 46-3, NIST SP 800-67 | 64-bit | 8 / 16 / 24 bytes | ECB, CBC |
-| AES | FIPS 197 | 128-bit | 128 / 192 / 256-bit | ECB, CBC, CTR, CFB, GCM (AEAD) |
+| AES | FIPS 197 | 128-bit | 128 / 192 / 256-bit | ECB, CBC, CTR, CFB, GCM (AEAD), CCM (AEAD) |
 | ARIA | RFC 5794, KS X 1213 | 128-bit | 128 / 192 / 256-bit | ECB, CBC |
 | SEED | RFC 4269, TTAS.KO-12.0004 | 128-bit | 128-bit | ECB, CBC |
 | ChaCha20-Poly1305 | RFC 8439 | Stream | 256-bit | AEAD (96-bit nonce) |
 
 - 패딩: ISO 9797-1 M1 (0x00), ISO 9797-1 M2 (0x80), No Padding
-- AES-GCM과 ChaCha20-Poly1305는 AAD(Associated Authenticated Data) 입력 지원
+- AES-GCM / AES-CCM / ChaCha20-Poly1305는 AAD(Associated Authenticated Data) 입력 지원
+- AES-CCM: NIST SP 800-38C / RFC 3610, 7-13B nonce, 4/6/8/10/12/14/16B tag
 
 ### 비대칭키 암호 (Asymmetric Cipher)
 
@@ -59,7 +60,7 @@
 
 - **Crypto**: `@noble/ciphers`, `@noble/curves`, `@noble/hashes`, `@noble/post-quantum`
 - **Build**: Vite + TypeScript
-- **Test**: Vitest (12개 테스트 파일, 224개 테스트 통과)
+- **Test**: Vitest (13개 테스트 파일, 245개 테스트 통과)
 
 ## 입출력 형식
 
