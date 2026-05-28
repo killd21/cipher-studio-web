@@ -59,15 +59,15 @@ A browser-based cryptography toolkit. All operations run client-side with no ser
 ## Tech Stack
 
 ### Build & Test
-[![TypeScript](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/dev/typescript?logo=typescript&logoColor=white&label=TypeScript&color=3178C6)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/dev/vite?logo=vite&logoColor=white&label=Vite&color=646CFF)](https://vitejs.dev/)
-[![Vitest](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/dev/vitest?logo=vitest&logoColor=white&label=Vitest&color=6E9F18)](https://vitest.dev/)
+[![TypeScript](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/dev/typescript?branch=master&logo=typescript&logoColor=white&label=TypeScript&color=3178C6)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/dev/vite?branch=master&logo=vite&logoColor=white&label=Vite&color=646CFF)](https://vitejs.dev/)
+[![Vitest](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/dev/vitest?branch=master&logo=vitest&logoColor=white&label=Vitest&color=6E9F18)](https://vitest.dev/)
 
 ### Crypto Libraries
-[![@noble/ciphers](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/@noble/ciphers?logo=npm&logoColor=white&label=%40noble%2Fciphers&color=8B5CF6)](https://www.npmjs.com/package/@noble/ciphers)
-[![@noble/curves](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/@noble/curves?logo=npm&logoColor=white&label=%40noble%2Fcurves&color=8B5CF6)](https://www.npmjs.com/package/@noble/curves)
-[![@noble/hashes](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/@noble/hashes?logo=npm&logoColor=white&label=%40noble%2Fhashes&color=8B5CF6)](https://www.npmjs.com/package/@noble/hashes)
-[![@noble/post-quantum](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/@noble/post-quantum?logo=npm&logoColor=white&label=%40noble%2Fpost-quantum&color=8B5CF6)](https://www.npmjs.com/package/@noble/post-quantum)
+[![@noble/ciphers](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/@noble/ciphers?branch=master&logo=npm&logoColor=white&label=%40noble%2Fciphers&color=8B5CF6)](https://www.npmjs.com/package/@noble/ciphers)
+[![@noble/curves](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/@noble/curves?branch=master&logo=npm&logoColor=white&label=%40noble%2Fcurves&color=8B5CF6)](https://www.npmjs.com/package/@noble/curves)
+[![@noble/hashes](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/@noble/hashes?branch=master&logo=npm&logoColor=white&label=%40noble%2Fhashes&color=8B5CF6)](https://www.npmjs.com/package/@noble/hashes)
+[![@noble/post-quantum](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/@noble/post-quantum?branch=master&logo=npm&logoColor=white&label=%40noble%2Fpost-quantum&color=8B5CF6)](https://www.npmjs.com/package/@noble/post-quantum)
 
 ### Repository
 [![CI](https://github.com/killd21/cipher-studio-web/actions/workflows/ci.yml/badge.svg)](https://github.com/killd21/cipher-studio-web/actions/workflows/ci.yml)
