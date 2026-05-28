@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Cipher Studio - Spatial Edition</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -371,6 +372,99 @@
     .seg-group select { border: none; background: transparent; padding: 8px 12px; box-shadow: none; flex: 1; text-align: center; }
 
     .hidden { display: none !important; }
+
+    /* ══════════════════════════════════════════════════════════
+       Mobile Responsive
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      body { overflow: auto; height: auto; min-height: 100vh; }
+
+      #titlebar { height: 48px; padding: 0 12px; }
+      .titlebar-center { font-size: 11px; }
+
+      #app-layout {
+        flex-direction: column;
+        height: auto;
+        min-height: calc(100vh - 48px);
+        padding: 8px 8px 80px 8px;
+        gap: 8px;
+      }
+
+      /* Sidebar → Bottom tab bar */
+      #sidebar-dock {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        width: 100% !important;
+        height: 64px;
+        flex-direction: row;
+        border-radius: 16px 16px 0 0;
+        padding: 0 8px !important;
+        gap: 2px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        z-index: 200;
+        align-items: center !important;
+        background: rgba(10, 10, 15, 0.95);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+      }
+      html[data-theme="light"] #sidebar-dock {
+        background: rgba(248, 250, 252, 0.95);
+      }
+      #sidebar-dock:hover { width: 100% !important; align-items: center !important; padding: 0 8px !important; }
+      #sidebar-dock:hover .dock-item { width: auto; padding: 0; }
+      #sidebar-dock:hover .dock-icon { width: 40px; height: 40px; }
+
+      .dock-group-title { display: none; }
+
+      .dock-item {
+        width: 40px !important; height: 40px !important;
+        min-width: 40px;
+        border-radius: 10px;
+        flex-shrink: 0;
+        padding: 0 !important;
+      }
+      .dock-icon {
+        width: 40px !important; height: 40px !important;
+        font-size: 10px;
+      }
+      .dock-label { display: none !important; }
+
+      /* Workspace */
+      #workspace {
+        border-radius: 16px;
+        min-height: 0;
+        flex: 1;
+      }
+      #panel-container { padding: 20px 16px; }
+
+      .bento-header { margin-bottom: 16px; }
+      .bento-title { font-size: 22px; }
+      .bento-grid { gap: 12px; }
+      .bento-card { padding: 16px; gap: 12px; }
+
+      input, select, textarea { padding: 10px 12px; font-size: 12px; }
+      button { padding: 10px 16px; font-size: 12px; }
+      .action-row { flex-wrap: wrap; gap: 8px; }
+
+      .result-box { font-size: 11px; padding: 12px; min-height: 48px; }
+
+      /* Terminal */
+      #terminal-dock {
+        position: relative;
+        bottom: auto; right: auto; left: auto;
+        margin-top: 8px;
+        border-radius: 12px;
+      }
+      #terminal-dock.open #terminal-body { height: 150px; }
+
+      .log-line {
+        grid-template-columns: 50px 1fr;
+        gap: 8px;
+        font-size: 10px;
+      }
+      .log-op { display: none; }
+    }
   </style>
 </head>
 
