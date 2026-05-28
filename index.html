@@ -502,6 +502,9 @@
       <div class="dock-item" data-panel="seed">
         <div class="dock-icon">SD</div><span class="dock-label">SEED</span>
       </div>
+      <div class="dock-item" data-panel="chacha">
+        <div class="dock-icon">CC</div><span class="dock-label">ChaCha20</span>
+      </div>
 
       <div class="dock-group-title">Asymmetric</div>
       <div class="dock-item" data-panel="rsa">
@@ -517,6 +520,12 @@
       </div>
       <div class="dock-item" data-panel="ecsdsa">
         <div class="dock-icon">SC</div><span class="dock-label">EC-SDSA</span>
+      </div>
+      <div class="dock-item" data-panel="ed25519">
+        <div class="dock-icon">ED</div><span class="dock-label">Ed25519</span>
+      </div>
+      <div class="dock-item" data-panel="x25519">
+        <div class="dock-icon">X2</div><span class="dock-label">X25519</span>
       </div>
 
       <div class="dock-group-title">PQC (Quantum)</div>
@@ -955,13 +964,18 @@
         <div id="panel-ecdsa" class="panel">
           <div class="bento-header">
             <h1 class="bento-title">ECDSA</h1>
-            <p class="bento-subtitle">FIPS 186-5 / ANSI X9.62 (ECDSA) — secp256r1 (P-256)</p>
+            <p class="bento-subtitle">FIPS 186-5 / ANSI X9.62 — Elliptic Curve Digital Signature</p>
           </div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
               <div class="card-title">Operation</div>
               <div class="seg-group">
                 <select id="ecdsa-op" onchange="updateEcdsaFields()"><option value="sign">Sign</option><option value="verify">Verify</option></select>
+                <select id="ecdsa-curve">
+                  <option value="p256" selected>P-256</option>
+                  <option value="p384">P-384</option>
+                  <option value="secp256k1">secp256k1</option>
+                </select>
               </div>
             </div>
             <div class="bento-card">
@@ -990,9 +1004,19 @@
         <div id="panel-ecdh" class="panel">
           <div class="bento-header">
             <h1 class="bento-title">ECDH</h1>
-            <p class="bento-subtitle">NIST SP 800-56A / RFC 5903 (ECDH) — secp256r1 (P-256)</p>
+            <p class="bento-subtitle">NIST SP 800-56A / RFC 5903 (ECDH) — Key Agreement</p>
           </div>
           <div class="bento-grid">
+            <div class="bento-card" style="grid-column: 1 / -1;">
+              <div class="card-title">Curve</div>
+              <div class="seg-group">
+                <select id="ecdh-curve">
+                  <option value="p256" selected>P-256</option>
+                  <option value="p384">P-384</option>
+                  <option value="secp256k1">secp256k1</option>
+                </select>
+              </div>
+            </div>
             <div class="bento-card">
               <div class="card-title">Parameters</div>
               <div class="input-group"><label>My Private Key (32 bytes)</label><input type="text" id="ecdh-priv" placeholder="32B private scalar hex..."></div>
@@ -1197,6 +1221,120 @@
               <div style="display:flex; gap:10px; height:100%;"><div class="result-box" id="asciihex-result" style="white-space:pre-wrap;"></div><button class="btn-secondary btn-icon-only" onclick="copyResult('asciihex-result')">📋</button></div>
               <div class="error-msg" id="asciihex-error"></div>
             </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════ ChaCha20-Poly1305 Panel ═══════════════ -->
+        <div id="panel-chacha" class="panel">
+          <div class="bento-header">
+            <h1 class="bento-title">ChaCha20-Poly1305</h1>
+            <p class="bento-subtitle">RFC 8439 — AEAD Stream Cipher (256-bit key, 96-bit nonce)</p>
+          </div>
+          <div class="bento-grid">
+            <div class="bento-card" style="grid-column: 1 / -1;">
+              <div class="card-title">Configuration</div>
+              <div class="seg-group">
+                <select id="chacha-dir">
+                  <option value="Enc">Encrypt</option>
+                  <option value="Dec">Decrypt</option>
+                </select>
+              </div>
+            </div>
+            <div class="bento-card">
+              <div class="card-title">Payload</div>
+              <div class="input-group"><label>Key (32 bytes hex)</label><input type="text" id="chacha-key" placeholder="32B key hex..."></div>
+              <div class="input-group"><label>Nonce (12 bytes hex)</label><input type="text" id="chacha-nonce" placeholder="12B nonce hex..."></div>
+              <div class="input-group"><label>AAD (optional)</label><input type="text" id="chacha-aad" placeholder="Additional authenticated data hex..."></div>
+              <div class="input-group"><label>Data</label><textarea id="chacha-data" placeholder="Plaintext / ciphertext+tag hex..."></textarea></div>
+              <div class="action-row">
+                <button class="btn-primary" onclick="runChacha()">Execute</button>
+                <button class="btn-secondary" onclick="clearPanel('chacha')">Clear</button>
+              </div>
+            </div>
+            <div class="bento-card">
+              <div class="card-title">Output</div>
+              <div style="display:flex; gap:10px; height:100%;"><div class="result-box" id="chacha-result"></div><button class="btn-secondary btn-icon-only" onclick="copyResult('chacha-result')">📋</button></div>
+              <div class="error-msg" id="chacha-error"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════ Ed25519 Panel ═══════════════ -->
+        <div id="panel-ed25519" class="panel">
+          <div class="bento-header">
+            <h1 class="bento-title">Ed25519</h1>
+            <p class="bento-subtitle">RFC 8032 — Edwards-Curve Digital Signature (Curve25519)</p>
+          </div>
+          <div class="bento-grid">
+            <div class="bento-card" style="grid-column: 1 / -1;">
+              <div class="card-title">Operation</div>
+              <div class="seg-group">
+                <select id="ed25519-op" onchange="updateEd25519Fields()">
+                  <option value="keygen">Key Generation</option>
+                  <option value="sign">Sign</option>
+                  <option value="verify">Verify</option>
+                </select>
+              </div>
+            </div>
+            <div class="bento-card" id="ed25519-keygen-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Key Generation</div>
+              <div class="action-row" style="margin-bottom:16px;"><button class="btn-primary" onclick="runEd25519()">Generate Keys</button></div>
+              <div class="bento-grid">
+                <div class="input-group"><label>Secret Key (32 bytes)</label><textarea id="ed25519-sk-out" readonly></textarea></div>
+                <div class="input-group"><label>Public Key (32 bytes)</label><textarea id="ed25519-pk-out" readonly></textarea></div>
+              </div>
+            </div>
+            <div class="bento-card hidden" id="ed25519-sign-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Sign</div>
+              <div class="input-group"><label>Secret Key (32 bytes)</label><input type="text" id="ed25519-sk-in" placeholder="32B secret key hex..."></div>
+              <div class="input-group"><label>Message (hex)</label><textarea id="ed25519-msg-sign" placeholder="Message hex..."></textarea></div>
+              <div class="action-row"><button class="btn-primary" onclick="runEd25519()">Sign</button></div>
+              <div class="input-group"><label>Signature (64 bytes)</label><textarea id="ed25519-sig-out" readonly></textarea></div>
+            </div>
+            <div class="bento-card hidden" id="ed25519-verify-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Verify</div>
+              <div class="input-group"><label>Public Key (32 bytes)</label><input type="text" id="ed25519-pk-in" placeholder="32B public key hex..."></div>
+              <div class="input-group"><label>Message (hex)</label><textarea id="ed25519-msg-verify" placeholder="Message hex..."></textarea></div>
+              <div class="input-group"><label>Signature (64 bytes)</label><textarea id="ed25519-sig-in" placeholder="64B signature hex..."></textarea></div>
+              <div class="action-row"><button class="btn-primary" onclick="runEd25519()">Verify</button></div>
+              <div class="result-box" id="ed25519-verify-result" style="min-height:40px;"></div>
+            </div>
+            <div class="error-msg" id="ed25519-error" style="grid-column: 1 / -1;"></div>
+          </div>
+        </div>
+
+        <!-- ═══════════════ X25519 Panel ═══════════════ -->
+        <div id="panel-x25519" class="panel">
+          <div class="bento-header">
+            <h1 class="bento-title">X25519</h1>
+            <p class="bento-subtitle">RFC 7748 — Elliptic Curve Diffie-Hellman (Curve25519)</p>
+          </div>
+          <div class="bento-grid">
+            <div class="bento-card" style="grid-column: 1 / -1;">
+              <div class="card-title">Operation</div>
+              <div class="seg-group">
+                <select id="x25519-op" onchange="updateX25519Fields()">
+                  <option value="keygen">Key Generation</option>
+                  <option value="compute">Compute Shared Secret</option>
+                </select>
+              </div>
+            </div>
+            <div class="bento-card" id="x25519-keygen-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Key Generation</div>
+              <div class="action-row" style="margin-bottom:16px;"><button class="btn-primary" onclick="runX25519()">Generate Keys</button></div>
+              <div class="bento-grid">
+                <div class="input-group"><label>Private Key (32 bytes)</label><textarea id="x25519-priv-out" readonly></textarea></div>
+                <div class="input-group"><label>Public Key (32 bytes)</label><textarea id="x25519-pub-out" readonly></textarea></div>
+              </div>
+            </div>
+            <div class="bento-card hidden" id="x25519-compute-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Compute Shared Secret</div>
+              <div class="input-group"><label>My Private Key (32 bytes)</label><input type="text" id="x25519-priv-in" placeholder="32B private key hex..."></div>
+              <div class="input-group"><label>Peer Public Key (32 bytes)</label><input type="text" id="x25519-peer-in" placeholder="32B peer public key hex..."></div>
+              <div class="action-row"><button class="btn-primary" onclick="runX25519()">Compute</button></div>
+              <div class="input-group"><label>Shared Secret</label><textarea id="x25519-secret-out" readonly></textarea></div>
+            </div>
+            <div class="error-msg" id="x25519-error" style="grid-column: 1 / -1;"></div>
           </div>
         </div>
 
@@ -1598,22 +1736,23 @@
     // ═══════════════════════════════ ECDSA ═══════════════════════════════
     async function runEcdsa() {
       const op = document.getElementById('ecdsa-op').value;
+      const curve = document.getElementById('ecdsa-curve').value;
       const msg = normalizeHex(document.getElementById('ecdsa-msg').value);
       try {
         let display;
         if (op === 'sign') {
           const priv = normalizeHex(document.getElementById('ecdsa-priv').value);
-          const res = await window.electronAPI.crypto.ecc('ecdsaSign', priv, msg);
+          const res = await window.electronAPI.crypto.ecc('ecdsaSign', priv, msg, curve);
           display = `R:   ${res.r}\nS:   ${res.s}\nDER: ${res.der}`;
         } else {
           const pub = normalizeHex(document.getElementById('ecdsa-pub').value);
           const r = normalizeHex(document.getElementById('ecdsa-r').value);
           const s = normalizeHex(document.getElementById('ecdsa-s').value);
-          const ok = await window.electronAPI.crypto.ecc('ecdsaVerify', pub, msg, r, s);
+          const ok = await window.electronAPI.crypto.ecc('ecdsaVerify', pub, msg, r, s, curve);
           display = ok ? '✓ VALID' : '✗ INVALID';
         }
         showRawResult('ecdsa-result', display, 'ecdsa-error');
-        addLog(`ECDSA ${op}`, display.replace(/\n/g, ' | ').substring(0, 64));
+        addLog(`ECDSA ${op} (${curve})`, display.replace(/\n/g, ' | ').substring(0, 64));
       } catch (e) { showError('ecdsa-error', e.message); addLog(`ECDSA ERROR`, e.message); }
     }
 
@@ -1621,10 +1760,11 @@
     async function runEcdh() {
       const priv = normalizeHex(document.getElementById('ecdh-priv').value);
       const peer = normalizeHex(document.getElementById('ecdh-peer').value);
+      const curve = document.getElementById('ecdh-curve').value;
       try {
-        const secret = await window.electronAPI.crypto.ecc('ecdhComputeSecret', priv, peer);
+        const secret = await window.electronAPI.crypto.ecc('ecdhComputeSecret', priv, peer, curve);
         showResult('ecdh-result', secret, 'ecdh-error');
-        addLog('ECDH', secret.substring(0, 32) + '…');
+        addLog(`ECDH (${curve})`, secret.substring(0, 32) + '…');
       } catch (e) { showError('ecdh-error', e.message); addLog(`ECDH ERROR`, e.message); }
     }
 
@@ -1723,6 +1863,82 @@
         showRawResult('asciihex-result', result, 'asciihex-error');
         addLog(`ASCII↔Hex`, result.substring(0, 48) + (result.length > 48 ? '…' : ''));
       } catch (e) { showError('asciihex-error', e.message); addLog(`ASCII↔Hex ERROR`, e.message); }
+    }
+
+    // ═══════════════════════════════ ChaCha20-Poly1305 ═══════════════════════════════
+    async function runChacha() {
+      const key = normalizeHex(document.getElementById('chacha-key').value);
+      const data = normalizeHex(document.getElementById('chacha-data').value);
+      const nonce = normalizeHex(document.getElementById('chacha-nonce').value);
+      const aad = normalizeHex(document.getElementById('chacha-aad').value) || undefined;
+      const dir = document.getElementById('chacha-dir').value;
+      const op = dir === 'Enc' ? 'encrypt' : 'decrypt';
+      try {
+        const result = await window.electronAPI.crypto.chacha(op, key, data, nonce, aad);
+        showResult('chacha-result', result, 'chacha-error');
+        addLog(`ChaCha20 ${dir}`, result.substring(0, 32) + (result.length > 32 ? '…' : ''));
+      } catch (e) { showError('chacha-error', e.message); addLog(`ChaCha20 ERROR`, e.message); }
+    }
+
+    // ═══════════════════════════════ Ed25519 ═══════════════════════════════
+    function updateEd25519Fields() {
+      const op = document.getElementById('ed25519-op').value;
+      document.getElementById('ed25519-keygen-section')?.classList.toggle('hidden', op !== 'keygen');
+      document.getElementById('ed25519-sign-section')?.classList.toggle('hidden', op !== 'sign');
+      document.getElementById('ed25519-verify-section')?.classList.toggle('hidden', op !== 'verify');
+    }
+
+    async function runEd25519() {
+      const op = document.getElementById('ed25519-op').value;
+      const errEl = document.getElementById('ed25519-error'); errEl.textContent = '';
+      try {
+        if (op === 'keygen') {
+          const res = await window.electronAPI.crypto.ecc('ed25519Keygen');
+          document.getElementById('ed25519-sk-out').value = res.secretKey;
+          document.getElementById('ed25519-pk-out').value = res.publicKey;
+          addLog('Ed25519 Keygen', 'OK');
+        } else if (op === 'sign') {
+          const sk = normalizeHex(document.getElementById('ed25519-sk-in').value);
+          const msg = normalizeHex(document.getElementById('ed25519-msg-sign').value);
+          const sig = await window.electronAPI.crypto.ecc('ed25519Sign', sk, msg);
+          document.getElementById('ed25519-sig-out').value = sig;
+          addLog('Ed25519 Sign', sig.substring(0, 32) + '…');
+        } else {
+          const pk = normalizeHex(document.getElementById('ed25519-pk-in').value);
+          const msg = normalizeHex(document.getElementById('ed25519-msg-verify').value);
+          const sig = normalizeHex(document.getElementById('ed25519-sig-in').value);
+          const ok = await window.electronAPI.crypto.ecc('ed25519Verify', pk, msg, sig);
+          document.getElementById('ed25519-verify-result').textContent = ok ? '✅ Valid Signature' : '❌ Invalid Signature';
+          document.getElementById('ed25519-verify-result').style.color = ok ? 'var(--ok)' : 'var(--err)';
+          addLog('Ed25519 Verify', ok ? 'VALID' : 'INVALID');
+        }
+      } catch (e) { showError('ed25519-error', e.message); addLog('Ed25519 ERROR', e.message); }
+    }
+
+    // ═══════════════════════════════ X25519 ═══════════════════════════════
+    function updateX25519Fields() {
+      const op = document.getElementById('x25519-op').value;
+      document.getElementById('x25519-keygen-section')?.classList.toggle('hidden', op !== 'keygen');
+      document.getElementById('x25519-compute-section')?.classList.toggle('hidden', op !== 'compute');
+    }
+
+    async function runX25519() {
+      const op = document.getElementById('x25519-op').value;
+      const errEl = document.getElementById('x25519-error'); errEl.textContent = '';
+      try {
+        if (op === 'keygen') {
+          const res = await window.electronAPI.crypto.ecc('x25519Keygen');
+          document.getElementById('x25519-priv-out').value = res.privateKey;
+          document.getElementById('x25519-pub-out').value = res.publicKey;
+          addLog('X25519 Keygen', 'OK');
+        } else {
+          const priv = normalizeHex(document.getElementById('x25519-priv-in').value);
+          const peer = normalizeHex(document.getElementById('x25519-peer-in').value);
+          const secret = await window.electronAPI.crypto.ecc('x25519ComputeSecret', priv, peer);
+          document.getElementById('x25519-secret-out').value = secret;
+          addLog('X25519 Secret', secret.substring(0, 32) + '…');
+        }
+      } catch (e) { showError('x25519-error', e.message); addLog('X25519 ERROR', e.message); }
     }
 
     // ═══════════════════════════════ ML-KEM ═══════════════════════════════

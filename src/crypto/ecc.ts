@@ -1,6 +1,9 @@
 import { toBuf, toHex } from './hex-utils.ts';
-import { p256 } from '@noble/curves/nist.js';
+import { p256, p384 } from '@noble/curves/nist.js';
+import { secp256k1 } from '@noble/curves/secp256k1.js';
 import { sha256 } from '@noble/hashes/sha2.js';
+import { ed25519 } from '@noble/curves/ed25519.js';
+import { x25519 } from '@noble/curves/ed25519.js';
 
 const BYTE_LEN = 32;
 const n = BigInt('0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551');
@@ -92,10 +95,23 @@ function concat(...arrays: Uint8Array[]): Uint8Array {
   return out;
 }
 
+function getCurve(name?: string) {
+  switch (name?.toLowerCase()) {
+    case 'p-384':
+    case 'p384':
+      return { curve: p384, keyLen: 48 };
+    case 'secp256k1':
+      return { curve: secp256k1, keyLen: 32 };
+    default:
+      return { curve: p256, keyLen: 32 };
+  }
+}
+
 // --- ECDH ---
-export function ecdhComputeSecret(privateKeyHex: string, peerPublicKeyHex: string): string {
-  const shared = p256.getSharedSecret(toBuf(privateKeyHex), toBuf(peerPublicKeyHex));
-  return toHex(shared.subarray(1, 33));
+export function ecdhComputeSecret(privateKeyHex: string, peerPublicKeyHex: string, curveName?: string): string {
+  const { curve, keyLen } = getCurve(curveName);
+  const shared = curve.getSharedSecret(toBuf(privateKeyHex), toBuf(peerPublicKeyHex));
+  return toHex(shared.subarray(1, 1 + keyLen));
 }
 
 // --- ECDSA ---
@@ -120,22 +136,24 @@ function encodeEcdsaDer(r: bigint, s: bigint): Uint8Array {
   return seq;
 }
 
-export function ecdsaSign(privateKeyHex: string, messageHex: string): { r: string; s: string; der: string } {
+export function ecdsaSign(privateKeyHex: string, messageHex: string, curveName?: string): { r: string; s: string; der: string } {
+  const { curve, keyLen } = getCurve(curveName);
   const msgHash = sha256(toBuf(messageHex));
-  const sig = p256.sign(msgHash, toBuf(privateKeyHex));
-  const rBytes = sig.subarray(0, 32);
-  const sBytes = sig.subarray(32, 64);
+  const sig = curve.sign(msgHash, toBuf(privateKeyHex));
+  const rBytes = sig.subarray(0, keyLen);
+  const sBytes = sig.subarray(keyLen, keyLen * 2);
   const r = BigInt('0x' + toHex(rBytes));
   const s = BigInt('0x' + toHex(sBytes));
   const der = encodeEcdsaDer(r, s);
-  return { r: bigToHex(r), s: bigToHex(s), der: toHex(der) };
+  return { r: bigToHex(r, keyLen), s: bigToHex(s, keyLen), der: toHex(der) };
 }
 
-export function ecdsaVerify(publicKeyHex: string, messageHex: string, rHex: string, sHex: string): boolean {
+export function ecdsaVerify(publicKeyHex: string, messageHex: string, rHex: string, sHex: string, curveName?: string): boolean {
+  const { curve } = getCurve(curveName);
   const msgHash = sha256(toBuf(messageHex));
   const sigBytes = concat(toBuf(rHex), toBuf(sHex));
   try {
-    return p256.verify(sigBytes, msgHash, toBuf(publicKeyHex));
+    return curve.verify(sigBytes, msgHash, toBuf(publicKeyHex));
   } catch {
     return false;
   }
@@ -192,7 +210,50 @@ export function ecSdsaVerify(publicKeyHex: string, messageHex: string, eHex: str
   return ePrime === e;
 }
 
-export function derivePublicKey(privateKeyHex: string): string {
-  const pub = p256.getPublicKey(toBuf(privateKeyHex), false);
+export function derivePublicKey(privateKeyHex: string, curveName?: string): string {
+  const { curve } = getCurve(curveName);
+  const pub = curve.getPublicKey(toBuf(privateKeyHex), false);
   return toHex(pub);
+}
+
+// --- Ed25519 ---
+export function ed25519Keygen(): { secretKey: string; publicKey: string } {
+  const sk = new Uint8Array(32);
+  crypto.getRandomValues(sk);
+  const pk = ed25519.getPublicKey(sk);
+  return { secretKey: toHex(sk), publicKey: toHex(pk) };
+}
+
+export function ed25519Sign(secretKeyHex: string, messageHex: string): string {
+  const sig = ed25519.sign(toBuf(messageHex), toBuf(secretKeyHex));
+  return toHex(sig);
+}
+
+export function ed25519Verify(publicKeyHex: string, messageHex: string, signatureHex: string): boolean {
+  try {
+    return ed25519.verify(toBuf(signatureHex), toBuf(messageHex), toBuf(publicKeyHex));
+  } catch {
+    return false;
+  }
+}
+
+export function ed25519DerivePublicKey(secretKeyHex: string): string {
+  return toHex(ed25519.getPublicKey(toBuf(secretKeyHex)));
+}
+
+// --- X25519 ---
+export function x25519Keygen(): { privateKey: string; publicKey: string } {
+  const priv = new Uint8Array(32);
+  crypto.getRandomValues(priv);
+  const pub = x25519.getPublicKey(priv);
+  return { privateKey: toHex(priv), publicKey: toHex(pub) };
+}
+
+export function x25519ComputeSecret(privateKeyHex: string, peerPublicKeyHex: string): string {
+  const shared = x25519.getSharedSecret(toBuf(privateKeyHex), toBuf(peerPublicKeyHex));
+  return toHex(shared);
+}
+
+export function x25519DerivePublicKey(privateKeyHex: string): string {
+  return toHex(x25519.getPublicKey(toBuf(privateKeyHex)));
 }

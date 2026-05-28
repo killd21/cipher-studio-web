@@ -23,6 +23,7 @@ type CryptoBridge = {
   rsa:     (op: string, ...args: unknown[]) => Promise<Hex | { n: Hex; d: Hex }>;
   ecc:     (op: string, ...args: unknown[]) => Promise<unknown>;
   pqc:     (op: string, ...args: unknown[]) => Promise<unknown>;
+  chacha:  (op: string, ...args: unknown[]) => Promise<Hex>;
 };
 
 export type ElectronAPI = {
@@ -53,6 +54,7 @@ import * as aria from './crypto/aria.ts';
 import * as seed from './crypto/seed.ts';
 import * as ecc from './crypto/ecc.ts';
 import * as pqc from './crypto/pqc.ts';
+import * as chacha from './crypto/chacha.ts';
 
 type PaddingOp = keyof typeof padding;
 
@@ -199,12 +201,12 @@ export function installElectronAPI(): void {
       ecc: async (op: string, ...args: unknown[]): Promise<unknown> => {
         switch (op) {
           case 'ecdhComputeSecret':
-            return ecc.ecdhComputeSecret(args[0] as string, args[1] as string);
+            return ecc.ecdhComputeSecret(args[0] as string, args[1] as string, args[2] as string | undefined);
           case 'ecdsaSign':
-            return ecc.ecdsaSign(args[0] as string, args[1] as string);
+            return ecc.ecdsaSign(args[0] as string, args[1] as string, args[2] as string | undefined);
           case 'ecdsaVerify':
             return ecc.ecdsaVerify(
-              args[0] as string, args[1] as string, args[2] as string, args[3] as string,
+              args[0] as string, args[1] as string, args[2] as string, args[3] as string, args[4] as string | undefined,
             );
           case 'ecSdsaSign':
             return ecc.ecSdsaSign(args[0] as string, args[1] as string);
@@ -213,9 +215,34 @@ export function installElectronAPI(): void {
               args[0] as string, args[1] as string, args[2] as string, args[3] as string,
             );
           case 'derivePublicKey':
-            return ecc.derivePublicKey(args[0] as string);
+            return ecc.derivePublicKey(args[0] as string, args[1] as string | undefined);
+          case 'ed25519Keygen':
+            return ecc.ed25519Keygen();
+          case 'ed25519Sign':
+            return ecc.ed25519Sign(args[0] as string, args[1] as string);
+          case 'ed25519Verify':
+            return ecc.ed25519Verify(args[0] as string, args[1] as string, args[2] as string);
+          case 'ed25519DerivePublicKey':
+            return ecc.ed25519DerivePublicKey(args[0] as string);
+          case 'x25519Keygen':
+            return ecc.x25519Keygen();
+          case 'x25519ComputeSecret':
+            return ecc.x25519ComputeSecret(args[0] as string, args[1] as string);
+          case 'x25519DerivePublicKey':
+            return ecc.x25519DerivePublicKey(args[0] as string);
           default:
             throw new Error(`Unknown ECC op: ${op}`);
+        }
+      },
+      chacha: async (op: string, ...args: unknown[]): Promise<Hex> => {
+        const key = args[0] as string;
+        const data = args[1] as string;
+        const nonce = args[2] as string;
+        const aad = args[3] as string | undefined;
+        switch (op) {
+          case 'encrypt': return chacha.encrypt(key, data, nonce, aad);
+          case 'decrypt': return chacha.decrypt(key, data, nonce, aad);
+          default: throw new Error(`Unknown ChaCha op: ${op}`);
         }
       },
       pqc: async (op: string, ...args: unknown[]): Promise<unknown> => {
