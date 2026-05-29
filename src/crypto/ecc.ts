@@ -2,8 +2,11 @@ import { toBuf, toHex } from './hex-utils.ts';
 import { p256, p384 } from '@noble/curves/nist.js';
 import { secp256k1 } from '@noble/curves/secp256k1.js';
 import { sha256 } from '@noble/hashes/sha2.js';
-import { ed25519 } from '@noble/curves/ed25519.js';
-import { x25519 } from '@noble/curves/ed25519.js';
+import { ed25519, x25519 } from '@noble/curves/ed25519.js';
+import { ed448, x448 } from '@noble/curves/ed448.js';
+
+type EdCurve = 'ed25519' | 'ed448';
+type XCurve = 'x25519' | 'x448';
 
 const BYTE_LEN = 32;
 const n = BigInt('0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551');
@@ -216,44 +219,55 @@ export function derivePublicKey(privateKeyHex: string, curveName?: string): stri
   return toHex(pub);
 }
 
-// --- Ed25519 ---
-export function ed25519Keygen(): { secretKey: string; publicKey: string } {
-  const sk = new Uint8Array(32);
+// --- EdDSA (Ed25519 / Ed448) ---
+function getEd(curve: EdCurve = 'ed25519') {
+  return curve === 'ed448' ? { lib: ed448, keyLen: 57 } : { lib: ed25519, keyLen: 32 };
+}
+
+export function eddsaKeygen(curve: EdCurve = 'ed25519'): { secretKey: string; publicKey: string } {
+  const { lib, keyLen } = getEd(curve);
+  const sk = new Uint8Array(keyLen);
   crypto.getRandomValues(sk);
-  const pk = ed25519.getPublicKey(sk);
-  return { secretKey: toHex(sk), publicKey: toHex(pk) };
+  return { secretKey: toHex(sk), publicKey: toHex(lib.getPublicKey(sk)) };
 }
 
-export function ed25519Sign(secretKeyHex: string, messageHex: string): string {
-  const sig = ed25519.sign(toBuf(messageHex), toBuf(secretKeyHex));
-  return toHex(sig);
+export function eddsaSign(secretKeyHex: string, messageHex: string, curve: EdCurve = 'ed25519'): string {
+  const { lib } = getEd(curve);
+  return toHex(lib.sign(toBuf(messageHex), toBuf(secretKeyHex)));
 }
 
-export function ed25519Verify(publicKeyHex: string, messageHex: string, signatureHex: string): boolean {
+export function eddsaVerify(publicKeyHex: string, messageHex: string, signatureHex: string, curve: EdCurve = 'ed25519'): boolean {
+  const { lib } = getEd(curve);
   try {
-    return ed25519.verify(toBuf(signatureHex), toBuf(messageHex), toBuf(publicKeyHex));
+    return lib.verify(toBuf(signatureHex), toBuf(messageHex), toBuf(publicKeyHex));
   } catch {
     return false;
   }
 }
 
-export function ed25519DerivePublicKey(secretKeyHex: string): string {
-  return toHex(ed25519.getPublicKey(toBuf(secretKeyHex)));
+export function eddsaDerivePublicKey(secretKeyHex: string, curve: EdCurve = 'ed25519'): string {
+  const { lib } = getEd(curve);
+  return toHex(lib.getPublicKey(toBuf(secretKeyHex)));
 }
 
-// --- X25519 ---
-export function x25519Keygen(): { privateKey: string; publicKey: string } {
-  const priv = new Uint8Array(32);
+// --- XDH (X25519 / X448) ---
+function getX(curve: XCurve = 'x25519') {
+  return curve === 'x448' ? { lib: x448, keyLen: 56 } : { lib: x25519, keyLen: 32 };
+}
+
+export function xdhKeygen(curve: XCurve = 'x25519'): { privateKey: string; publicKey: string } {
+  const { lib, keyLen } = getX(curve);
+  const priv = new Uint8Array(keyLen);
   crypto.getRandomValues(priv);
-  const pub = x25519.getPublicKey(priv);
-  return { privateKey: toHex(priv), publicKey: toHex(pub) };
+  return { privateKey: toHex(priv), publicKey: toHex(lib.getPublicKey(priv)) };
 }
 
-export function x25519ComputeSecret(privateKeyHex: string, peerPublicKeyHex: string): string {
-  const shared = x25519.getSharedSecret(toBuf(privateKeyHex), toBuf(peerPublicKeyHex));
-  return toHex(shared);
+export function xdhComputeSecret(privateKeyHex: string, peerPublicKeyHex: string, curve: XCurve = 'x25519'): string {
+  const { lib } = getX(curve);
+  return toHex(lib.getSharedSecret(toBuf(privateKeyHex), toBuf(peerPublicKeyHex)));
 }
 
-export function x25519DerivePublicKey(privateKeyHex: string): string {
-  return toHex(x25519.getPublicKey(toBuf(privateKeyHex)));
+export function xdhDerivePublicKey(privateKeyHex: string, curve: XCurve = 'x25519'): string {
+  const { lib } = getX(curve);
+  return toHex(lib.getPublicKey(toBuf(privateKeyHex)));
 }

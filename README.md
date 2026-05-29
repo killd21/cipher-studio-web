@@ -33,8 +33,8 @@ A browser-based cryptography toolkit. All operations run client-side with no ser
 | EC-DSA | FIPS 186-5 · ANSI X9.62 | P-256, P-384, secp256k1 | Sign / Verify |
 | EC-DH | NIST SP 800-56A · RFC 5903 | P-256, P-384, secp256k1 | Key Agreement (Shared Secret) |
 | EC-SDSA | ISO/IEC 14888-3 | secp256r1 (P-256) | EC-Schnorr Sign / Verify |
-| Ed25519 | RFC 8032 | Curve25519 (Edwards) | Keygen / Sign / Verify |
-| X25519 | RFC 7748 | Curve25519 (Montgomery) | Key Agreement (Shared Secret) |
+| Ed-DSA | RFC 8032 | **Curve25519 (Ed25519)** / **Curve448 (Ed448)** | Keygen / Sign / Verify |
+| X-DH | RFC 7748 | **Curve25519 (X25519)** / **Curve448 (X448)** | Key Agreement (Shared Secret) |
 
 ### Post-Quantum Cryptography (PQC)
 
@@ -83,7 +83,7 @@ K' can be auto-derived from K via **Key Derivation Method 2** (`K' = K ⊕ 0xF0�
 [![Release](https://img.shields.io/github/v/release/killd21/cipher-studio-web?logo=github&label=Release&color=blueviolet)](https://github.com/killd21/cipher-studio-web/releases/latest)
 [![CI](https://github.com/killd21/cipher-studio-web/actions/workflows/ci.yml/badge.svg)](https://github.com/killd21/cipher-studio-web/actions/workflows/ci.yml)
 [![Last Commit](https://img.shields.io/github/last-commit/killd21/cipher-studio-web?logo=github)](https://github.com/killd21/cipher-studio-web/commits/master)
-[![Tests](https://img.shields.io/badge/tests-276%20passed-success?logo=vitest&logoColor=white)](./test)
+[![Tests](https://img.shields.io/badge/tests-289%20passed-success?logo=vitest&logoColor=white)](./test)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 ## I/O Format

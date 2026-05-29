@@ -232,20 +232,20 @@ export function installElectronAPI(): void {
             );
           case 'derivePublicKey':
             return ecc.derivePublicKey(args[0] as string, args[1] as string | undefined);
-          case 'ed25519Keygen':
-            return ecc.ed25519Keygen();
-          case 'ed25519Sign':
-            return ecc.ed25519Sign(args[0] as string, args[1] as string);
-          case 'ed25519Verify':
-            return ecc.ed25519Verify(args[0] as string, args[1] as string, args[2] as string);
-          case 'ed25519DerivePublicKey':
-            return ecc.ed25519DerivePublicKey(args[0] as string);
-          case 'x25519Keygen':
-            return ecc.x25519Keygen();
-          case 'x25519ComputeSecret':
-            return ecc.x25519ComputeSecret(args[0] as string, args[1] as string);
-          case 'x25519DerivePublicKey':
-            return ecc.x25519DerivePublicKey(args[0] as string);
+          case 'eddsaKeygen':
+            return ecc.eddsaKeygen(args[0] as 'ed25519' | 'ed448' | undefined);
+          case 'eddsaSign':
+            return ecc.eddsaSign(args[0] as string, args[1] as string, args[2] as 'ed25519' | 'ed448' | undefined);
+          case 'eddsaVerify':
+            return ecc.eddsaVerify(args[0] as string, args[1] as string, args[2] as string, args[3] as 'ed25519' | 'ed448' | undefined);
+          case 'eddsaDerivePublicKey':
+            return ecc.eddsaDerivePublicKey(args[0] as string, args[1] as 'ed25519' | 'ed448' | undefined);
+          case 'xdhKeygen':
+            return ecc.xdhKeygen(args[0] as 'x25519' | 'x448' | undefined);
+          case 'xdhComputeSecret':
+            return ecc.xdhComputeSecret(args[0] as string, args[1] as string, args[2] as 'x25519' | 'x448' | undefined);
+          case 'xdhDerivePublicKey':
+            return ecc.xdhDerivePublicKey(args[0] as string, args[1] as 'x25519' | 'x448' | undefined);
           default:
             throw new Error(`Unknown ECC op: ${op}`);
         }
