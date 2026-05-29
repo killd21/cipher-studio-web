@@ -505,7 +505,7 @@
     <nav id="sidebar-dock">
       <div class="dock-group-title">Symmetric</div>
       <div class="dock-item active" data-panel="des">
-        <div class="dock-icon">3D</div><span class="dock-label">DES / 3DES</span>
+        <div class="dock-icon">3D</div><span class="dock-label">DES</span>
       </div>
       <div class="dock-item" data-panel="aes">
         <div class="dock-icon">AE</div><span class="dock-label">AES</span>
@@ -527,10 +527,10 @@
       
       <div class="dock-group-title">ECC</div>
       <div class="dock-item" data-panel="ecdsa">
-        <div class="dock-icon">EC</div><span class="dock-label">ECDSA</span>
+        <div class="dock-icon">EC</div><span class="dock-label">EC-DSA</span>
       </div>
       <div class="dock-item" data-panel="ecdh">
-        <div class="dock-icon">DH</div><span class="dock-label">ECDH</span>
+        <div class="dock-icon">DH</div><span class="dock-label">EC-DH</span>
       </div>
       <div class="dock-item" data-panel="ecsdsa">
         <div class="dock-icon">SC</div><span class="dock-label">EC-SDSA</span>
@@ -566,14 +566,8 @@
       <div class="dock-item" data-panel="bitwise">
         <div class="dock-icon">BW</div><span class="dock-label">Bitwise</span>
       </div>
-      <div class="dock-item" data-panel="random">
-        <div class="dock-icon">RN</div><span class="dock-label">Random</span>
-      </div>
-      <div class="dock-item" data-panel="asciihex">
-        <div class="dock-icon">AH</div><span class="dock-label">ASCII ↔ Hex</span>
-      </div>
-      <div class="dock-item" data-panel="base64">
-        <div class="dock-icon">B6</div><span class="dock-label">Base64</span>
+      <div class="dock-item" data-panel="encoding">
+        <div class="dock-icon">EN</div><span class="dock-label">Encoding</span>
       </div>
       <div class="dock-item" data-panel="kdf">
         <div class="dock-icon">KD</div><span class="dock-label">KDF</span>
@@ -587,8 +581,8 @@
         <!-- ═══════════════ DES Panel ═══════════════ -->
         <div class="panel active" id="panel-des">
           <div class="bento-header">
-            <h1 class="bento-title">DES / 3DES</h1>
-            <p class="bento-subtitle">FIPS 46-3 / NIST SP 800-67 (DES, TDEA) — 64-bit block</p>
+            <h1 class="bento-title">DES</h1>
+            <p class="bento-subtitle">FIPS 46-3 · NIST SP 800-67 — Block cipher · 64-bit block · 56/112/168-bit key</p>
           </div>
           
           <div class="bento-grid">
@@ -646,7 +640,7 @@
         <div class="panel" id="panel-aes">
           <div class="bento-header">
             <h1 class="bento-title">AES</h1>
-            <p class="bento-subtitle">FIPS 197 (AES) — 128-bit block, 128/192/256-bit key</p>
+            <p class="bento-subtitle">FIPS 197 — Block cipher · 128-bit block · 128/192/256-bit key</p>
           </div>
           
           <div class="bento-grid">
@@ -724,7 +718,7 @@
         <div class="panel" id="panel-rsa">
           <div class="bento-header">
             <h1 class="bento-title">RSA</h1>
-            <p class="bento-subtitle">PKCS #1 / RFC 8017 — RSA Raw Modular Exponentiation</p>
+            <p class="bento-subtitle">PKCS #1 · RFC 8017 — Asymmetric cipher · Raw modular exponentiation</p>
           </div>
           
           <div class="bento-grid">
@@ -782,7 +776,7 @@
         <div class="panel" id="panel-mlkem">
           <div class="bento-header">
             <h1 class="bento-title">ML-KEM</h1>
-            <p class="bento-subtitle">FIPS 203 — ML-KEM (Module-Lattice-Based Key Encapsulation)</p>
+            <p class="bento-subtitle">FIPS 203 — PQC KEM · ML-KEM-512 / 768 / 1024</p>
           </div>
           
           <div class="bento-grid">
@@ -869,14 +863,14 @@
         <!-- Other panels abbreviated for layout presentation, but functional hooks remain -->
         <!-- ═══════════════ MAC Panel ═══════════════ -->
         <div class="panel" id="panel-mac">
-          <div class="bento-header"><h1 class="bento-title">MAC</h1><p class="bento-subtitle">ISO/IEC 9797-1 (DES MAC) · RFC 4493 (AES-CMAC) · RFC 2104 (HMAC)</p></div>
+          <div class="bento-header"><h1 class="bento-title">MAC</h1><p class="bento-subtitle">ISO/IEC 9797-1 · RFC 4493 · RFC 2104 — Message Authentication · DES MAC / AES-CMAC / HMAC</p></div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
               <div class="card-title">Configuration</div>
               <div class="seg-group">
                 <select id="mac-alg" onchange="updateMacFields()">
                   <option value="desMac">DES MAC</option>
-                  <option value="cmacAes">AES-CMAC (RFC 4493)</option>
+                  <option value="cmacAes">AES-CMAC</option>
                   <option value="hmac">HMAC</option>
                 </select>
                 <select id="mac-des-alg" onchange="updateMacFields()">
@@ -920,7 +914,7 @@
 
         <!-- ═══════════════ HASH Panel ═══════════════ -->
         <div class="panel" id="panel-hash">
-          <div class="bento-header"><h1 class="bento-title">Hash</h1><p class="bento-subtitle">FIPS 180-4 · FIPS 202 (SHA-3) · RFC 1321 (MD5)</p></div>
+          <div class="bento-header"><h1 class="bento-title">Hash</h1><p class="bento-subtitle">FIPS 180-4 · FIPS 202 · RFC 1321 · RFC 7693 — Hash · SHA-1/2/3, SHAKE, BLAKE, RIPEMD, MD5</p></div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
               <div class="card-title">Configuration</div>
@@ -964,7 +958,7 @@
         <div id="panel-aria" class="panel">
           <div class="bento-header">
             <h1 class="bento-title">ARIA</h1>
-            <p class="bento-subtitle">RFC 5794 / KS X 1213 (ARIA) — 128-bit block, 128/192/256-bit key</p>
+            <p class="bento-subtitle">RFC 5794 · KS X 1213 — Block cipher · 128-bit block · 128/192/256-bit key</p>
           </div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
@@ -997,7 +991,7 @@
         <div id="panel-seed" class="panel">
           <div class="bento-header">
             <h1 class="bento-title">SEED</h1>
-            <p class="bento-subtitle">RFC 4269 / TTAS.KO-12.0004 (SEED) — 128-bit block, 128-bit key</p>
+            <p class="bento-subtitle">RFC 4269 · TTAS.KO-12.0004 — Block cipher · 128-bit block · 128-bit key</p>
           </div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
@@ -1030,7 +1024,7 @@
         <div id="panel-ecdsa" class="panel">
           <div class="bento-header">
             <h1 class="bento-title">ECDSA</h1>
-            <p class="bento-subtitle">FIPS 186-5 / ANSI X9.62 — Elliptic Curve Digital Signature</p>
+            <p class="bento-subtitle">FIPS 186-5 · ANSI X9.62 — Signature · P-256 / P-384 / secp256k1</p>
           </div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
@@ -1070,7 +1064,7 @@
         <div id="panel-ecdh" class="panel">
           <div class="bento-header">
             <h1 class="bento-title">ECDH</h1>
-            <p class="bento-subtitle">NIST SP 800-56A / RFC 5903 (ECDH) — Key Agreement</p>
+            <p class="bento-subtitle">NIST SP 800-56A · RFC 5903 — Key agreement · P-256 / P-384 / secp256k1</p>
           </div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
@@ -1104,7 +1098,7 @@
         <div id="panel-ecsdsa" class="panel">
           <div class="bento-header">
             <h1 class="bento-title">EC-SDSA</h1>
-            <p class="bento-subtitle">ISO/IEC 14888-3 (EC-SDSA / EC-Schnorr) — secp256r1 (P-256)</p>
+            <p class="bento-subtitle">ISO/IEC 14888-3 — EC-Schnorr signature · secp256r1 (P-256)</p>
           </div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
@@ -1139,7 +1133,7 @@
         <div id="panel-mldsa" class="panel">
           <div class="bento-header">
             <h1 class="bento-title">ML-DSA</h1>
-            <p class="bento-subtitle">FIPS 204 — ML-DSA (Module-Lattice-Based Digital Signature)</p>
+            <p class="bento-subtitle">FIPS 204 — PQC signature · ML-DSA-44 / 65 / 87</p>
           </div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
@@ -1180,7 +1174,7 @@
         <div id="panel-padding" class="panel">
           <div class="bento-header">
             <h1 class="bento-title">Padding</h1>
-            <p class="bento-subtitle">ISO/IEC 9797-1 (M1/M2/M3) · PKCS #5/#7 — Block Cipher Padding</p>
+            <p class="bento-subtitle">ISO/IEC 9797-1 · PKCS #5/#7 — Block cipher padding · M1 / M2 / M3 / PKCS</p>
           </div>
           <div class="bento-grid">
             <div class="bento-card">
@@ -1211,7 +1205,7 @@
         <div id="panel-bitwise" class="panel">
           <div class="bento-header">
             <h1 class="bento-title">Bitwise</h1>
-            <p class="bento-subtitle">Bitwise Operations — XOR, AND, OR, NOT, Shift</p>
+            <p class="bento-subtitle">— Bitwise operations · XOR / AND / OR / NOT / Shift L/R</p>
           </div>
           <div class="bento-grid">
             <div class="bento-card">
@@ -1243,49 +1237,39 @@
         </div>
 
         <!-- ═══════════════ Random Panel ═══════════════ -->
-        <div id="panel-random" class="panel">
+        <div id="panel-encoding" class="panel">
           <div class="bento-header">
-            <h1 class="bento-title">Random</h1>
-            <p class="bento-subtitle">Web Crypto getRandomValues — CSPRNG</p>
+            <h1 class="bento-title">Encoding</h1>
+            <p class="bento-subtitle">RFC 4648 — Encoding utility · ASCII / Hex / Base64 / Base64url</p>
           </div>
           <div class="bento-grid">
-            <div class="bento-card">
-              <div class="card-title">Parameters</div>
-              <div class="input-group"><label>Length (bytes)</label><input type="number" id="rnd-len" value="16" min="1" max="512"></div>
-              <div class="action-row">
-                <button class="btn-primary" onclick="runRandom()">Generate</button>
+            <div class="bento-card" style="grid-column: 1 / -1;">
+              <div class="card-title">Configuration</div>
+              <div class="seg-group">
+                <select id="enc-op">
+                  <option value="asciiToHex">ASCII → Hex</option>
+                  <option value="hexToAscii">Hex → ASCII</option>
+                  <option value="hexToB64">Hex → Base64</option>
+                  <option value="b64ToHex">Base64 → Hex</option>
+                  <option value="hexToB64Url">Hex → Base64url</option>
+                  <option value="b64UrlToHex">Base64url → Hex</option>
+                  <option value="asciiToB64">ASCII → Base64</option>
+                  <option value="b64ToAscii">Base64 → ASCII</option>
+                </select>
               </div>
             </div>
-            <div class="bento-card">
-              <div class="card-title">Output</div>
-              <div style="display:flex; gap:10px; height:100%;"><div class="result-box" id="rnd-result"></div><button class="btn-secondary btn-icon-only" onclick="copyResult('rnd-result')">📋</button></div>
-              <div class="error-msg" id="rnd-error"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ═══════════════ ASCII ↔ Hex Panel ═══════════════ -->
-        <div id="panel-asciihex" class="panel">
-          <div class="bento-header">
-            <h1 class="bento-title">ASCII ↔ Hex</h1>
-            <p class="bento-subtitle">ASCII ↔ Hex String Encoder / Decoder</p>
-          </div>
-          <div class="bento-grid">
             <div class="bento-card">
               <div class="card-title">Input</div>
-              <div class="seg-group" style="margin-bottom:12px;">
-                <select id="ah-dir"><option value="toHex">ASCII → Hex</option><option value="toAscii">Hex → ASCII</option></select>
-              </div>
-              <div class="input-group"><label>Input</label><textarea id="ah-input" placeholder="ASCII text or hex string depending on direction..."></textarea></div>
+              <div class="input-group"><label>Input</label><textarea id="enc-input" placeholder="Input depends on selected operation..."></textarea></div>
               <div class="action-row">
-                <button class="btn-primary" onclick="runAsciiHex()">Convert</button>
-                <button class="btn-secondary" onclick="clearPanel('asciihex')">Clear</button>
+                <button class="btn-primary" onclick="runEncoding()">Convert</button>
+                <button class="btn-secondary" onclick="clearPanel('encoding')">Clear</button>
               </div>
             </div>
             <div class="bento-card">
               <div class="card-title">Output</div>
-              <div style="display:flex; gap:10px; height:100%;"><div class="result-box" id="asciihex-result" style="white-space:pre-wrap;"></div><button class="btn-secondary btn-icon-only" onclick="copyResult('asciihex-result')">📋</button></div>
-              <div class="error-msg" id="asciihex-error"></div>
+              <div style="display:flex; gap:10px; height:100%;"><div class="result-box" id="enc-result" style="white-space:pre-wrap;"></div><button class="btn-secondary btn-icon-only" onclick="copyResult('enc-result')">📋</button></div>
+              <div class="error-msg" id="enc-error"></div>
             </div>
           </div>
         </div>
@@ -1294,7 +1278,7 @@
         <div id="panel-chacha" class="panel">
           <div class="bento-header">
             <h1 class="bento-title">ChaCha20-Poly1305</h1>
-            <p class="bento-subtitle">RFC 8439 — AEAD Stream Cipher (256-bit key, 96-bit nonce)</p>
+            <p class="bento-subtitle">RFC 8439 — AEAD stream cipher · 256-bit key · 96-bit nonce</p>
           </div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
@@ -1329,7 +1313,7 @@
         <div id="panel-ed25519" class="panel">
           <div class="bento-header">
             <h1 class="bento-title">Ed25519</h1>
-            <p class="bento-subtitle">RFC 8032 — Edwards-Curve Digital Signature (Curve25519)</p>
+            <p class="bento-subtitle">RFC 8032 — Signature · Curve25519 (Edwards)</p>
           </div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
@@ -1373,7 +1357,7 @@
         <div id="panel-x25519" class="panel">
           <div class="bento-header">
             <h1 class="bento-title">X25519</h1>
-            <p class="bento-subtitle">RFC 7748 — Elliptic Curve Diffie-Hellman (Curve25519)</p>
+            <p class="bento-subtitle">RFC 7748 — Key agreement · Curve25519 (Montgomery)</p>
           </div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
@@ -1408,7 +1392,7 @@
         <div id="panel-slhdsa" class="panel">
           <div class="bento-header">
             <h1 class="bento-title">SLH-DSA</h1>
-            <p class="bento-subtitle">FIPS 205 — Stateless Hash-Based Digital Signature (SPHINCS+)</p>
+            <p class="bento-subtitle">FIPS 205 — PQC hash-based signature · SHAKE / SHA2 × 128/192/256 (SPHINCS+)</p>
           </div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
@@ -1457,41 +1441,11 @@
         </div>
 
         <!-- ═══════════════ Base64 Panel ═══════════════ -->
-        <div id="panel-base64" class="panel">
-          <div class="bento-header">
-            <h1 class="bento-title">Base64</h1>
-            <p class="bento-subtitle">RFC 4648 — Base64 / Base64url Encoding</p>
-          </div>
-          <div class="bento-grid">
-            <div class="bento-card">
-              <div class="card-title">Configuration</div>
-              <div class="seg-group" style="margin-bottom:12px;">
-                <select id="b64-op">
-                  <option value="hexToB64">Hex → Base64</option>
-                  <option value="b64ToHex">Base64 → Hex</option>
-                  <option value="hexToB64Url">Hex → Base64url</option>
-                  <option value="b64UrlToHex">Base64url → Hex</option>
-                </select>
-              </div>
-              <div class="input-group"><label>Input</label><textarea id="b64-input" placeholder="Input data..."></textarea></div>
-              <div class="action-row">
-                <button class="btn-primary" onclick="runBase64()">Convert</button>
-                <button class="btn-secondary" onclick="clearPanel('base64')">Clear</button>
-              </div>
-            </div>
-            <div class="bento-card">
-              <div class="card-title">Output</div>
-              <div style="display:flex; gap:10px; height:100%;"><div class="result-box" id="b64-result" style="white-space:pre-wrap;"></div><button class="btn-secondary btn-icon-only" onclick="copyResult('b64-result')">📋</button></div>
-              <div class="error-msg" id="b64-error"></div>
-            </div>
-          </div>
-        </div>
-
         <!-- ═══════════════ KDF Panel ═══════════════ -->
         <div id="panel-kdf" class="panel">
           <div class="bento-header">
             <h1 class="bento-title">KDF</h1>
-            <p class="bento-subtitle">RFC 5869 (HKDF) · RFC 8018 (PBKDF2) — Key Derivation</p>
+            <p class="bento-subtitle">RFC 5869 · RFC 8018 — Key derivation · HKDF / PBKDF2</p>
           </div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
@@ -2066,33 +2020,43 @@
       } catch (e) { showError('bw-error', e.message); addLog(`Bitwise ERROR`, e.message); }
     }
 
-    // ═══════════════════════════════ Random ═══════════════════════════════
-    async function runRandom() {
-      const len = parseInt(document.getElementById('rnd-len').value, 10);
-      if (!len || len < 1 || len > 512) { showError('rnd-error', 'Byte count must be 1–512'); return; }
-      try {
-        const result = await window.electronAPI.crypto.random(len);
-        showResult('rnd-result', result, 'rnd-error');
-        addLog(`Random ${len}B`, result);
-      } catch (e) { showError('rnd-error', e.message); addLog(`Random ERROR`, e.message); }
-    }
-
-    // ═══════════════════════════════ ASCII ↔ Hex ═══════════════════════════════
-    function runAsciiHex() {
-      const dir = document.getElementById('ah-dir').value;
-      const input = document.getElementById('ah-input').value;
+    // ═══════════════════════════════ Encoding (ASCII / Hex / Base64) ═══════════════════════════════
+    function runEncoding() {
+      const op = document.getElementById('enc-op').value;
+      const input = document.getElementById('enc-input').value;
+      const hexToBytes = (h) => {
+        const clean = h.replace(/\s+/g, '');
+        if (clean.length % 2 !== 0) throw new Error('Hex string length must be even');
+        const out = new Uint8Array(clean.length / 2);
+        for (let i = 0; i < out.length; i++) out[i] = parseInt(clean.substr(i * 2, 2), 16);
+        return out;
+      };
+      const bytesToHex = (b) => Array.from(b).map(x => x.toString(16).padStart(2, '0').toUpperCase()).join('');
+      const asciiToBytes = (s) => { const o = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) o[i] = s.charCodeAt(i); return o; };
+      const bytesToAscii = (b) => Array.from(b).map(x => String.fromCharCode(x)).join('');
+      const bytesToB64 = (b) => { let s = ''; for (const x of b) s += String.fromCharCode(x); return btoa(s); };
+      const b64ToBytes = (s) => { const d = atob(s); const o = new Uint8Array(d.length); for (let i = 0; i < d.length; i++) o[i] = d.charCodeAt(i); return o; };
       try {
         let result;
-        if (dir === 'toHex') {
-          result = Array.from(input).map(c => c.charCodeAt(0).toString(16).padStart(2, '0').toUpperCase()).join('');
-        } else {
-          const hex = input.replace(/\s+/g, '');
-          if (hex.length % 2 !== 0) throw new Error('Hex string length must be even');
-          result = hex.match(/.{2}/g).map(h => String.fromCharCode(parseInt(h, 16))).join('');
+        switch (op) {
+          case 'asciiToHex':    result = bytesToHex(asciiToBytes(input)); break;
+          case 'hexToAscii':    result = bytesToAscii(hexToBytes(input)); break;
+          case 'hexToB64':      result = bytesToB64(hexToBytes(input)); break;
+          case 'b64ToHex':      result = bytesToHex(b64ToBytes(input.replace(/\s+/g, ''))); break;
+          case 'hexToB64Url':   result = bytesToB64(hexToBytes(input)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); break;
+          case 'b64UrlToHex': {
+            let s = input.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
+            while (s.length % 4 !== 0) s += '=';
+            result = bytesToHex(b64ToBytes(s));
+            break;
+          }
+          case 'asciiToB64':    result = bytesToB64(asciiToBytes(input)); break;
+          case 'b64ToAscii':    result = bytesToAscii(b64ToBytes(input.replace(/\s+/g, ''))); break;
+          default: throw new Error(`Unknown encoding op: ${op}`);
         }
-        showRawResult('asciihex-result', result, 'asciihex-error');
-        addLog(`ASCII↔Hex`, result);
-      } catch (e) { showError('asciihex-error', e.message); addLog(`ASCII↔Hex ERROR`, e.message); }
+        showRawResult('enc-result', result, 'enc-error');
+        addLog(`Encoding ${op}`, result);
+      } catch (e) { showError('enc-error', e.message); addLog('Encoding ERROR', e.message); }
     }
 
     // ═══════════════════════════════ ChaCha20-Poly1305 ═══════════════════════════════
@@ -2205,43 +2169,6 @@
           addLog(`SLH-DSA ${variant} Verify`, ok ? 'VALID' : 'INVALID');
         }
       } catch (e) { showError('slhdsa-error', e.message); addLog('SLH-DSA ERROR', e.message); }
-    }
-
-    // ═══════════════════════════════ Base64 ═══════════════════════════════
-    async function runBase64() {
-      const op = document.getElementById('b64-op').value;
-      const input = document.getElementById('b64-input').value.trim();
-      try {
-        let result;
-        // Base64 ops use local utility, not crypto bridge — call directly via API
-        const apiOp = op;
-        result = await callBase64(apiOp, input);
-        showRawResult('b64-result', result, 'b64-error');
-        addLog(`Base64 ${op}`, result);
-      } catch (e) { showError('b64-error', e.message); addLog('Base64 ERROR', e.message); }
-    }
-
-    async function callBase64(op, input) {
-      // Inline Base64 conversion (no crypto bridge needed — pure encoding)
-      const hexToBytes = (h) => {
-        const clean = h.replace(/\s+/g, '');
-        const out = new Uint8Array(clean.length / 2);
-        for (let i = 0; i < out.length; i++) out[i] = parseInt(clean.substr(i * 2, 2), 16);
-        return out;
-      };
-      const bytesToHex = (b) => Array.from(b).map(x => x.toString(16).padStart(2, '0').toUpperCase()).join('');
-      const bytesToB64 = (b) => { let s = ''; for (const x of b) s += String.fromCharCode(x); return btoa(s); };
-      const b64ToBytes = (s) => { const d = atob(s); const o = new Uint8Array(d.length); for (let i = 0; i < d.length; i++) o[i] = d.charCodeAt(i); return o; };
-
-      if (op === 'hexToB64') return bytesToB64(hexToBytes(input));
-      if (op === 'b64ToHex') return bytesToHex(b64ToBytes(input.replace(/\s+/g, '')));
-      if (op === 'hexToB64Url') return bytesToB64(hexToBytes(input)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-      if (op === 'b64UrlToHex') {
-        let s = input.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
-        while (s.length % 4 !== 0) s += '=';
-        return bytesToHex(b64ToBytes(s));
-      }
-      throw new Error(`Unknown base64 op: ${op}`);
     }
 
     // ═══════════════════════════════ KDF ═══════════════════════════════

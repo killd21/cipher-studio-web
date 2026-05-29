@@ -8,21 +8,21 @@ A browser-based cryptography toolkit. All operations run client-side with no ser
 
 | Algorithm | Standard | Block Size | Key Length | Modes |
 |---------|------|----------|--------|----------|
-| DES / 3DES | FIPS 46-3, NIST SP 800-67 | 64-bit | 8 / 16 / 24 bytes | ECB, CBC |
+| DES | FIPS 46-3 · NIST SP 800-67 | 64-bit | 8 / 16 / 24 bytes (single-DES / 2-key / 3-key TDEA) | ECB, CBC |
 | AES | FIPS 197 | 128-bit | 128 / 192 / 256-bit | ECB, CBC, CTR, CFB, GCM (AEAD), CCM (AEAD) |
-| ARIA | RFC 5794, KS X 1213 | 128-bit | 128 / 192 / 256-bit | ECB, CBC |
-| SEED | RFC 4269, TTAS.KO-12.0004 | 128-bit | 128-bit | ECB, CBC |
+| ARIA | RFC 5794 · KS X 1213 | 128-bit | 128 / 192 / 256-bit | ECB, CBC |
+| SEED | RFC 4269 · TTAS.KO-12.0004 | 128-bit | 128-bit | ECB, CBC |
 | ChaCha20-Poly1305 | RFC 8439 | Stream | 256-bit | AEAD (96-bit nonce) |
 
-- Padding: ISO 9797-1 M1 (0x00), ISO 9797-1 M2 (0x80), No Padding
-- AES-GCM / AES-CCM / ChaCha20-Poly1305 support AAD (Associated Authenticated Data) input
-- AES-CCM: NIST SP 800-38C / RFC 3610, 7-13B nonce, 4/6/8/10/12/14/16B tag
+- Padding: ISO 9797-1 M1 (0x00), ISO 9797-1 M2 (0x80), ISO 9797-1 M3 (length-prefixed), PKCS #5 / #7, No Padding
+- AES-GCM / AES-CCM / ChaCha20-Poly1305 support AAD (Associated Authenticated Data)
+- AES-CCM: NIST SP 800-38C / RFC 3610 — configurable nonce (7-13B) and tag (4/6/8/10/12/14/16B)
 
 ### Asymmetric Cipher
 
 | Algorithm | Standard | Description |
 |---------|------|------|
-| RSA | PKCS #1, RFC 8017 | Raw Modular Exponentiation with CRT support |
+| RSA | PKCS #1 · RFC 8017 | Raw Modular Exponentiation with CRT support |
 
 - Operations: Encrypt, Decrypt, CRT Decrypt, CRT → Standard conversion
 
@@ -30,8 +30,8 @@ A browser-based cryptography toolkit. All operations run client-side with no ser
 
 | Algorithm | Standard | Curve | Features |
 |---------|------|------|------|
-| ECDSA | FIPS 186-5, ANSI X9.62 | P-256, P-384, secp256k1 | Sign / Verify |
-| ECDH | NIST SP 800-56A, RFC 5903 | P-256, P-384, secp256k1 | Key Agreement (Shared Secret) |
+| EC-DSA | FIPS 186-5 · ANSI X9.62 | P-256, P-384, secp256k1 | Sign / Verify |
+| EC-DH | NIST SP 800-56A · RFC 5903 | P-256, P-384, secp256k1 | Key Agreement (Shared Secret) |
 | EC-SDSA | ISO/IEC 14888-3 | secp256r1 (P-256) | EC-Schnorr Sign / Verify |
 | Ed25519 | RFC 8032 | Curve25519 (Edwards) | Keygen / Sign / Verify |
 | X25519 | RFC 7748 | Curve25519 (Montgomery) | Key Agreement (Shared Secret) |
@@ -42,19 +42,29 @@ A browser-based cryptography toolkit. All operations run client-side with no ser
 |---------|------|------|------|
 | ML-KEM | FIPS 203 | ML-KEM-512 / 768 / 1024 | Keygen / Encapsulate / Decapsulate |
 | ML-DSA | FIPS 204 | ML-DSA-44 / 65 / 87 | Keygen / Sign / Verify |
-| SLH-DSA | FIPS 205 | SHAKE / SHA2 × 128 / 192 / 256 (fast) | Keygen / Sign / Verify |
+| SLH-DSA | FIPS 205 | SHAKE / SHA2 × 128 / 192 / 256 (fast variants) | Keygen / Sign / Verify |
 
 ### Utilities
 
 | Feature | Standard | Description |
 |------|------|------|
-| Hash | FIPS 180-4, FIPS 202, RFC 1321, RFC 7693 | SHA-1, SHA-256/384/512, SHA3-256/384/512, SHAKE128/256, BLAKE2b/s, BLAKE3, RIPEMD-160, MD5 |
-| MAC | RFC 2104 (HMAC), ISO/IEC 9797-1 (DES MAC), RFC 4493 (AES-CMAC) | HMAC supports SHA-1/2/3 families |
-| KDF | RFC 5869 (HKDF), RFC 8018 (PBKDF2) | Key derivation functions; supports 7 HMAC-compatible hashes |
-| Padding | ISO 9797-1 M1/M2/M3, PKCS #5/#7 | Apply / remove block cipher padding |
-| Bitwise | — | XOR, AND, OR, NOT, Shift Left/Right operations |
-| Random | — | CSPRNG (Web Crypto getRandomValues) |
-| Encoding | RFC 4648 | ASCII ↔ Hex, Hex ↔ Base64 / Base64url conversion |
+| Hash | FIPS 180-4 · FIPS 202 · RFC 1321 · RFC 7693 | SHA-1, SHA-256/384/512, SHA3-256/384/512, SHAKE128/256, BLAKE2b/s, BLAKE3, RIPEMD-160, MD5 |
+| MAC | ISO/IEC 9797-1 · RFC 4493 · RFC 2104 | DES MAC (ISO 9797-1 Algorithm 1 / 2 / 3 / 4), AES-CMAC, HMAC (SHA-1/2/3 families); KDM2 auto key derivation |
+| KDF | RFC 5869 (HKDF) · RFC 8018 (PBKDF2) | Key derivation; supports 7 HMAC-compatible hash variants |
+| Padding | ISO/IEC 9797-1 M1/M2/M3 · PKCS #5/#7 | Apply / remove block cipher padding |
+| Bitwise | — | XOR, AND, OR, NOT, Shift Left / Right |
+| Encoding | RFC 4648 | ASCII ↔ Hex, Hex ↔ Base64 / Base64url, ASCII ↔ Base64 (combined panel) |
+
+#### ISO 9797-1 MAC algorithms
+
+| Algorithm | Output Transformation | Use case |
+|-----------|----------------------|----------|
+| Algorithm 1 | None — plain CBC-MAC | Legacy DES-MAC |
+| Algorithm 2 | OT1: `E_K'(Hn)` | Strengthened MAC, EMV-like |
+| Algorithm 3 | OT3: `E_K(D_K'(Hn))` — Retail MAC | EMV, payment card systems |
+| Algorithm 4 | OT2: `E_K'(D_K(Hn))` | TR-31, certain banking protocols |
+
+K' can be auto-derived from K via **Key Derivation Method 2** (`K' = K ⊕ 0xF0…F0`) by inputting an 8-byte key, or supplied explicitly via 16-byte `K || K'`.
 
 ## Tech Stack
 
@@ -73,13 +83,13 @@ A browser-based cryptography toolkit. All operations run client-side with no ser
 [![Release](https://img.shields.io/github/v/release/killd21/cipher-studio-web?logo=github&label=Release&color=blueviolet)](https://github.com/killd21/cipher-studio-web/releases/latest)
 [![CI](https://github.com/killd21/cipher-studio-web/actions/workflows/ci.yml/badge.svg)](https://github.com/killd21/cipher-studio-web/actions/workflows/ci.yml)
 [![Last Commit](https://img.shields.io/github/last-commit/killd21/cipher-studio-web?logo=github)](https://github.com/killd21/cipher-studio-web/commits/master)
-[![Tests](https://img.shields.io/badge/tests-245%20passed-success?logo=vitest&logoColor=white)](./test)
+[![Tests](https://img.shields.io/badge/tests-276%20passed-success?logo=vitest&logoColor=white)](./test)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 ## I/O Format
 
 All cryptographic operations use **hex (hexadecimal) strings** for input and output.
-The Base64 encoding utility supports conversion to and from standard / URL-safe Base64.
+The Encoding utility panel converts between ASCII, Hex, Base64 and Base64url (URL-safe).
 
 ## Getting Started
 
@@ -119,6 +129,15 @@ npm run preview
 
 ```bash
 npm test
+```
+
+## Releases
+
+Releases are fully automated via GitHub Actions. Pushing a `vX.Y.Z` tag triggers a workflow that runs tests, builds the static site, packages `dist/` as a zip, and creates a GitHub Release with auto-generated changelog.
+
+```bash
+npm version patch         # bumps package.json, commits, creates v-tag
+git push && git push --tags
 ```
 
 ## License
