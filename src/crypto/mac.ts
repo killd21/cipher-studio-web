@@ -59,17 +59,73 @@ export function retailMac(
 export function desTdesMac(
   key: string, msg: string, iv = '0000000000000000', padMethod = 'iso9797m2',
 ): string {
-  if (key.length !== 32 && key.length !== 48) {
-    throw new Error('DES/TDES MAC requires 16-byte (32 hex) or 24-byte (48 hex) key.');
+  let k1: string, k2: string, k3: string;
+  if (key.length === 16) {
+    k1 = key;
+    k2 = deriveKprimeKDM2(key);
+    k3 = k1;
+  } else if (key.length === 32) {
+    k1 = key.substring(0, 16);
+    k2 = key.substring(16, 32);
+    k3 = k1;
+  } else if (key.length === 48) {
+    k1 = key.substring(0, 16);
+    k2 = key.substring(16, 32);
+    k3 = key.substring(32, 48);
+  } else {
+    throw new Error('DES/TDES MAC key must be 8-byte (auto K\' via KDM2), 16-byte (K || K\'), or 24-byte (K1||K2||K3).');
   }
-  const k1 = key.substring(0, 16);
-  const k2 = key.substring(16, 32);
-  const k3 = key.length === 48 ? key.substring(32, 48) : k1;
   const padded = applyDesPad(msg, padMethod);
   const cbcResult = des.cbcEncrypt(k1, padded, iv);
   const lastBlock = cbcResult.substring(cbcResult.length - 16);
   const tmp = des.ecbDecrypt(k2, lastBlock);
   return des.ecbEncrypt(k3, tmp);
+}
+
+// ISO 9797-1 Key Derivation Method 2: K' = K XOR (F0)^8
+function deriveKprimeKDM2(keyHex: string): string {
+  if (keyHex.length !== 16) throw new Error('KDM2 requires 8-byte (16 hex) key');
+  const bytes = new Uint8Array(8);
+  for (let i = 0; i < 8; i++) {
+    bytes[i] = parseInt(keyHex.substring(i * 2, i * 2 + 2), 16) ^ 0xF0;
+  }
+  let out = '';
+  for (let i = 0; i < 8; i++) out += bytes[i]!.toString(16).padStart(2, '0').toUpperCase();
+  return out;
+}
+
+// Split key into (K, K'). If 8 bytes given, derive K' via KDM2. If 16 bytes, use K||K' directly.
+function splitDesKey(key: string): { k: string; kPrime: string } {
+  if (key.length === 16) {
+    return { k: key, kPrime: deriveKprimeKDM2(key) };
+  }
+  if (key.length === 32) {
+    return { k: key.substring(0, 16), kPrime: key.substring(16, 32) };
+  }
+  throw new Error('Key must be 8-byte (auto K\' via KDM2) or 16-byte (K || K\').');
+}
+
+// ISO 9797-1 Algorithm 2 — Output Transformation 1 (OT1): G = E_K'(Hn)
+export function desMacAlg2(
+  key: string, msg: string, iv = '0000000000000000', padMethod = 'iso9797m2',
+): string {
+  const { k, kPrime } = splitDesKey(key);
+  const padded = applyDesPad(msg, padMethod);
+  const cbcResult = des.cbcEncrypt(k, padded, iv);
+  const Hn = cbcResult.substring(cbcResult.length - 16);
+  return des.ecbEncrypt(kPrime, Hn);
+}
+
+// ISO 9797-1 Algorithm 4 — Output Transformation 2 (OT2): G = E_K'(D_K(Hn))
+export function desMacAlg4(
+  key: string, msg: string, iv = '0000000000000000', padMethod = 'iso9797m2',
+): string {
+  const { k, kPrime } = splitDesKey(key);
+  const padded = applyDesPad(msg, padMethod);
+  const cbcResult = des.cbcEncrypt(k, padded, iv);
+  const Hn = cbcResult.substring(cbcResult.length - 16);
+  const tmp = des.ecbDecrypt(k, Hn);
+  return des.ecbEncrypt(kPrime, tmp);
 }
 
 export function desFullMac(key: string, msg: string, padMethod = 'iso9797m2'): string {

@@ -110,12 +110,24 @@
     .titlebar-left, .titlebar-right {
       display: flex;
       align-items: center;
-      width: 60px; /* 좌우 균형을 맞춰 중앙 텍스트가 정확히 가운데 오도록 함 */
+      width: 80px; /* 좌우 균형을 맞춰 중앙 텍스트가 정확히 가운데 오도록 함 */
       -webkit-app-region: no-drag;
     }
-    
+
     .titlebar-right {
       justify-content: flex-end;
+    }
+
+    .version-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      padding: 3px 8px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+      background: var(--color-surface);
     }
 
     .theme-btn {
@@ -473,7 +485,9 @@
 
   <!-- Frameless Window Topbar -->
   <div id="titlebar">
-    <div class="titlebar-left"></div>
+    <div class="titlebar-left">
+      <span class="version-badge" id="app-version">v?.?.?</span>
+    </div>
     <div class="titlebar-center">CIPHER STUDIO - SPATIAL ENGINE</div>
     <div class="titlebar-right">
       <button class="theme-btn" id="btn-theme" title="Toggle Theme">
@@ -811,11 +825,11 @@
             <div class="bento-card hidden" id="mlkem-encap-section" style="grid-column: 1 / -1;">
               <div class="bento-grid">
                 <div style="display:flex; flex-direction:column; gap:16px;">
-                  <div class="input-group"><label>Encapsulation Key (ek)</label><textarea id="mlkem-ek-in"></textarea></div>
+                  <div class="input-group"><label>Encapsulation Key (ek)</label><textarea id="mlkem-ek-in" placeholder="Encapsulation key hex (paste from keygen output)..."></textarea></div>
                   <div class="input-group">
                     <label>Randomness (m) - Optional 32B</label>
                     <div style="display:flex; gap:8px;">
-                      <input type="text" id="mlkem-m-in">
+                      <input type="text" id="mlkem-m-in" placeholder="Optional 32B (64 hex) randomness; or click Rand">
                       <button class="btn-secondary" onclick="fillMlkemRandom()">Rand</button>
                     </div>
                   </div>
@@ -835,8 +849,8 @@
             <div class="bento-card hidden" id="mlkem-decap-section" style="grid-column: 1 / -1;">
                <div class="bento-grid">
                 <div style="display:flex; flex-direction:column; gap:16px;">
-                  <div class="input-group"><label>Decapsulation Key (dk)</label><textarea id="mlkem-dk-in"></textarea></div>
-                  <div class="input-group"><label>Ciphertext (ct)</label><textarea id="mlkem-ct-in"></textarea></div>
+                  <div class="input-group"><label>Decapsulation Key (dk)</label><textarea id="mlkem-dk-in" placeholder="Decapsulation key hex (paste from keygen output)..."></textarea></div>
+                  <div class="input-group"><label>Ciphertext (ct)</label><textarea id="mlkem-ct-in" placeholder="Ciphertext hex (paste from encap output)..."></textarea></div>
                   <div class="action-row">
                     <button class="btn-primary" onclick="runMlkem()">Decapsulate</button>
                     <button class="btn-secondary" onclick="clearMlkem()">Clear</button>
@@ -858,10 +872,18 @@
           <div class="bento-header"><h1 class="bento-title">MAC</h1><p class="bento-subtitle">ISO/IEC 9797-1 (DES MAC) · RFC 4493 (AES-CMAC) · RFC 2104 (HMAC)</p></div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
+              <div class="card-title">Configuration</div>
               <div class="seg-group">
                 <select id="mac-alg" onchange="updateMacFields()">
                   <option value="desMac">DES MAC</option>
+                  <option value="cmacAes">AES-CMAC (RFC 4493)</option>
                   <option value="hmac">HMAC</option>
+                </select>
+                <select id="mac-des-alg" onchange="updateMacFields()">
+                  <option value="alg1" selected>Algorithm 1 (CBC-MAC)</option>
+                  <option value="alg2">Algorithm 2 (OT1: E_K'(Hn))</option>
+                  <option value="alg3">Algorithm 3 (Retail MAC, OT3)</option>
+                  <option value="alg4">Algorithm 4 (OT2: E_K'(D_K(Hn)))</option>
                 </select>
                 <select id="mac-halg">
                   <option value="sha1">SHA-1</option>
@@ -872,10 +894,16 @@
                   <option value="sha3-384">SHA3-384</option>
                   <option value="sha3-512">SHA3-512</option>
                 </select>
-                <select id="mac-pad"><option value="iso9797m2">ISO M2</option><option value="none">None</option></select>
+                <select id="mac-pad">
+                  <option value="iso9797m1">ISO M1</option>
+                  <option value="iso9797m2" selected>ISO M2</option>
+                  <option value="iso9797m3">ISO M3</option>
+                  <option value="none">None</option>
+                </select>
               </div>
             </div>
             <div class="bento-card">
+              <div class="card-title">Payload</div>
               <div class="input-group"><label>Key (hex)</label><input type="text" id="mac-key" placeholder="MAC key hex..."></div>
               <div class="input-group"><label>Data (hex)</label><textarea id="mac-data" placeholder="Data hex to authenticate..."></textarea></div>
               <div class="input-group" id="mac-iv-group"><label>IV</label><input type="text" id="mac-iv" placeholder="8B IV hex (default: 0000000000000000)..."></div>
@@ -883,7 +911,9 @@
               <div class="action-row"><button class="btn-primary" onclick="runMac()">Execute</button></div>
             </div>
             <div class="bento-card">
-              <div class="result-box" id="mac-result"></div><div class="error-msg" id="mac-error"></div>
+              <div class="card-title">Output</div>
+              <div style="display:flex; gap:10px; height:100%;"><div class="result-box" id="mac-result"></div><button class="btn-secondary btn-icon-only" onclick="copyResult('mac-result')">📋</button></div>
+              <div class="error-msg" id="mac-error"></div>
             </div>
           </div>
         </div>
@@ -892,23 +922,29 @@
         <div class="panel" id="panel-hash">
           <div class="bento-header"><h1 class="bento-title">Hash</h1><p class="bento-subtitle">FIPS 180-4 · FIPS 202 (SHA-3) · RFC 1321 (MD5)</p></div>
           <div class="bento-grid">
+            <div class="bento-card" style="grid-column: 1 / -1;">
+              <div class="card-title">Configuration</div>
+              <div class="seg-group">
+                <select id="hash-alg" onchange="updateHashFields()">
+                  <option value="md5">MD5</option>
+                  <option value="sha1">SHA-1</option>
+                  <option value="sha256" selected>SHA-256</option>
+                  <option value="sha384">SHA-384</option>
+                  <option value="sha512">SHA-512</option>
+                  <option value="sha3-256">SHA3-256</option>
+                  <option value="sha3-384">SHA3-384</option>
+                  <option value="sha3-512">SHA3-512</option>
+                  <option value="shake128">SHAKE128</option>
+                  <option value="shake256">SHAKE256</option>
+                  <option value="blake2b">BLAKE2b</option>
+                  <option value="blake2s">BLAKE2s</option>
+                  <option value="blake3">BLAKE3</option>
+                  <option value="ripemd160">RIPEMD-160</option>
+                </select>
+              </div>
+            </div>
             <div class="bento-card">
-              <select id="hash-alg" style="margin-bottom:10px;" onchange="updateHashFields()">
-                <option value="md5">MD5</option>
-                <option value="sha1">SHA-1</option>
-                <option value="sha256" selected>SHA-256</option>
-                <option value="sha384">SHA-384</option>
-                <option value="sha512">SHA-512</option>
-                <option value="sha3-256">SHA3-256</option>
-                <option value="sha3-384">SHA3-384</option>
-                <option value="sha3-512">SHA3-512</option>
-                <option value="shake128">SHAKE128</option>
-                <option value="shake256">SHAKE256</option>
-                <option value="blake2b">BLAKE2b</option>
-                <option value="blake2s">BLAKE2s</option>
-                <option value="blake3">BLAKE3</option>
-                <option value="ripemd160">RIPEMD-160</option>
-              </select>
+              <div class="card-title">Payload</div>
               <div class="input-group hidden" id="hash-outlen-group">
                 <label>Output Length (bytes)</label>
                 <input type="number" id="hash-outlen" value="32" min="1" max="512">
@@ -916,7 +952,11 @@
               <div class="input-group"><label>Data (hex)</label><textarea id="hash-data" placeholder="Data hex to hash (empty = hash of empty string)..."></textarea></div>
               <div class="action-row"><button class="btn-primary" onclick="runHash()">Hash</button></div>
             </div>
-            <div class="bento-card"><div class="result-box" id="hash-result"></div><div class="error-msg" id="hash-error"></div></div>
+            <div class="bento-card">
+              <div class="card-title">Output</div>
+              <div style="display:flex; gap:10px; height:100%;"><div class="result-box" id="hash-result"></div><button class="btn-secondary btn-icon-only" onclick="copyResult('hash-result')">📋</button></div>
+              <div class="error-msg" id="hash-error"></div>
+            </div>
           </div>
         </div>
 
@@ -1119,16 +1159,16 @@
             </div>
             <div class="bento-card hidden" id="mldsa-sign-section" style="grid-column: 1 / -1;">
               <div class="card-title">Sign</div>
-              <div class="input-group"><label>Secret Key</label><textarea id="mldsa-sk-in"></textarea></div>
-              <div class="input-group"><label>Message (hex)</label><textarea id="mldsa-msg-sign"></textarea></div>
+              <div class="input-group"><label>Secret Key</label><textarea id="mldsa-sk-in" placeholder="Secret key hex (paste from keygen output)..."></textarea></div>
+              <div class="input-group"><label>Message (hex)</label><textarea id="mldsa-msg-sign" placeholder="Message hex to sign..."></textarea></div>
               <div class="action-row"><button class="btn-primary" onclick="runMldsa()">Sign</button></div>
               <div class="input-group"><label>Signature</label><textarea id="mldsa-sig-out" readonly></textarea></div>
             </div>
             <div class="bento-card hidden" id="mldsa-verify-section" style="grid-column: 1 / -1;">
               <div class="card-title">Verify</div>
-              <div class="input-group"><label>Public Key</label><textarea id="mldsa-pk-in"></textarea></div>
-              <div class="input-group"><label>Message (hex)</label><textarea id="mldsa-msg-verify"></textarea></div>
-              <div class="input-group"><label>Signature</label><textarea id="mldsa-sig-in"></textarea></div>
+              <div class="input-group"><label>Public Key</label><textarea id="mldsa-pk-in" placeholder="Public key hex (paste from keygen output)..."></textarea></div>
+              <div class="input-group"><label>Message (hex)</label><textarea id="mldsa-msg-verify" placeholder="Message hex to verify..."></textarea></div>
+              <div class="input-group"><label>Signature</label><textarea id="mldsa-sig-in" placeholder="Signature hex (paste from sign output)..."></textarea></div>
               <div class="action-row"><button class="btn-primary" onclick="runMldsa()">Verify</button></div>
               <div class="result-box" id="mldsa-verify-result" style="min-height:40px;"></div>
             </div>
@@ -1399,16 +1439,16 @@
             </div>
             <div class="bento-card hidden" id="slhdsa-sign-section" style="grid-column: 1 / -1;">
               <div class="card-title">Sign (signature can be ~50KB)</div>
-              <div class="input-group"><label>Secret Key</label><textarea id="slhdsa-sk-in"></textarea></div>
-              <div class="input-group"><label>Message (hex)</label><textarea id="slhdsa-msg-sign"></textarea></div>
+              <div class="input-group"><label>Secret Key</label><textarea id="slhdsa-sk-in" placeholder="Secret key hex (paste from keygen output)..."></textarea></div>
+              <div class="input-group"><label>Message (hex)</label><textarea id="slhdsa-msg-sign" placeholder="Message hex to sign..."></textarea></div>
               <div class="action-row"><button class="btn-primary" onclick="runSlhdsa()">Sign</button></div>
               <div class="input-group"><label>Signature</label><textarea id="slhdsa-sig-out" readonly style="min-height:120px;"></textarea></div>
             </div>
             <div class="bento-card hidden" id="slhdsa-verify-section" style="grid-column: 1 / -1;">
               <div class="card-title">Verify</div>
-              <div class="input-group"><label>Public Key</label><textarea id="slhdsa-pk-in"></textarea></div>
-              <div class="input-group"><label>Message (hex)</label><textarea id="slhdsa-msg-verify"></textarea></div>
-              <div class="input-group"><label>Signature</label><textarea id="slhdsa-sig-in" style="min-height:120px;"></textarea></div>
+              <div class="input-group"><label>Public Key</label><textarea id="slhdsa-pk-in" placeholder="Public key hex (paste from keygen output)..."></textarea></div>
+              <div class="input-group"><label>Message (hex)</label><textarea id="slhdsa-msg-verify" placeholder="Message hex to verify..."></textarea></div>
+              <div class="input-group"><label>Signature</label><textarea id="slhdsa-sig-in" placeholder="Signature hex (paste from sign output, may be ~50KB)..." style="min-height:120px;"></textarea></div>
               <div class="action-row"><button class="btn-primary" onclick="runSlhdsa()">Verify</button></div>
               <div class="result-box" id="slhdsa-verify-result" style="min-height:40px;"></div>
             </div>
@@ -1675,11 +1715,19 @@
     }
     function updateMacFields() {
       const alg = document.getElementById('mac-alg')?.value;
-      const isDesBased = alg === 'desMac' || alg === 'desTdesMac' || alg === 'desFullMac';
-      document.getElementById('mac-iv-group')?.classList.toggle('hidden', !(alg === 'desMac' || alg === 'desTdesMac'));
-      document.getElementById('mac-len-group')?.classList.toggle('hidden', alg !== 'desMac');
+      const desAlg = document.getElementById('mac-des-alg')?.value;
+      const isDes = alg === 'desMac';
+      const isAlg1 = isDes && desAlg === 'alg1';
+
+      document.getElementById('mac-des-alg')?.classList.toggle('hidden', !isDes);
+      // IV: needed for all DES algorithms
+      document.getElementById('mac-iv-group')?.classList.toggle('hidden', !isDes);
+      // Output length: only Alg 1 allows truncation; Alg 2/3/4 output fixed 8 bytes
+      document.getElementById('mac-len-group')?.classList.toggle('hidden', !isAlg1);
+      // Hash algorithm: only for HMAC
       document.getElementById('mac-halg')?.classList.toggle('hidden', alg !== 'hmac');
-      document.getElementById('mac-pad')?.classList.toggle('hidden', !isDesBased);
+      // Padding: for all DES-based modes
+      document.getElementById('mac-pad')?.classList.toggle('hidden', !isDes);
     }
     function updateEcdsaFields() {
       const op = document.getElementById('ecdsa-op')?.value;
@@ -1850,21 +1898,37 @@
     // ═══════════════════════════════ MAC ═══════════════════════════════
     async function runMac() {
       const alg = document.getElementById('mac-alg').value;
+      const desAlg = document.getElementById('mac-des-alg')?.value || 'alg1';
       const key = normalizeHex(document.getElementById('mac-key').value);
       const data = normalizeHex(document.getElementById('mac-data').value);
-      const iv = normalizeHex(document.getElementById('mac-iv')?.value || '');
+      const iv = normalizeHex(document.getElementById('mac-iv')?.value || '') || '0000000000000000';
       const len = parseInt(document.getElementById('mac-len')?.value || '8', 10);
       const halg = document.getElementById('mac-halg')?.value || 'sha256';
       const padMethod = document.getElementById('mac-pad')?.value || 'iso9797m2';
       try {
         let result;
-        if (alg === 'hmac') result = await window.electronAPI.crypto.mac('hmac', halg, key, data);
-        else if (alg === 'desMac') result = await window.electronAPI.crypto.mac('desMac', key, data, iv, len, padMethod);
-        else if (alg === 'desTdesMac') result = await window.electronAPI.crypto.mac('desTdesMac', key, data, iv, padMethod);
-        else if (alg === 'desFullMac') result = await window.electronAPI.crypto.mac('desFullMac', key, data, padMethod);
-        else result = await window.electronAPI.crypto.mac(alg, key, data);
+        let logLabel = alg;
+        if (alg === 'hmac') {
+          result = await window.electronAPI.crypto.mac('hmac', halg, key, data);
+          logLabel = `HMAC-${halg}`;
+        } else if (alg === 'cmacAes') {
+          result = await window.electronAPI.crypto.mac('cmacAes', key, data);
+          logLabel = 'AES-CMAC';
+        } else if (alg === 'desMac' && desAlg === 'alg2') {
+          result = await window.electronAPI.crypto.mac('desMacAlg2', key, data, iv, padMethod);
+          logLabel = 'DES MAC (Alg 2 / OT1)';
+        } else if (alg === 'desMac' && desAlg === 'alg3') {
+          result = await window.electronAPI.crypto.mac('desTdesMac', key, data, iv, padMethod);
+          logLabel = 'DES MAC (Alg 3 / Retail)';
+        } else if (alg === 'desMac' && desAlg === 'alg4') {
+          result = await window.electronAPI.crypto.mac('desMacAlg4', key, data, iv, padMethod);
+          logLabel = 'DES MAC (Alg 4 / OT2)';
+        } else {
+          result = await window.electronAPI.crypto.mac('desMac', key, data, iv, len, padMethod);
+          logLabel = 'DES MAC (Alg 1 / CBC-MAC)';
+        }
         showResult('mac-result', result, 'mac-error');
-        addLog(`MAC ${alg}`, result);
+        addLog(`MAC ${logLabel}`, result);
       } catch (e) { showError('mac-error', e.message); addLog(`MAC ERROR`, e.message); }
     }
 

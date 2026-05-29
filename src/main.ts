@@ -12,3 +12,11 @@ import { Buffer } from 'buffer';
 import { installElectronAPI } from './electronAPI-adapter.ts';
 
 installElectronAPI();
+
+// Injected by Vite from package.json (see vite.config.ts)
+declare const __APP_VERSION__: string;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const el = document.getElementById('app-version');
+  if (el) el.textContent = `v${__APP_VERSION__}`;
+});

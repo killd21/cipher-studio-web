@@ -146,6 +146,18 @@ export function installElectronAPI(): void {
               args[2] as string | undefined ?? '0000000000000000',
               (args[3] as string | undefined) ?? 'iso9797m2',
             );
+          case 'desMacAlg2':
+            return mac.desMacAlg2(
+              args[0] as string, args[1] as string,
+              args[2] as string | undefined ?? '0000000000000000',
+              (args[3] as string | undefined) ?? 'iso9797m2',
+            );
+          case 'desMacAlg4':
+            return mac.desMacAlg4(
+              args[0] as string, args[1] as string,
+              args[2] as string | undefined ?? '0000000000000000',
+              (args[3] as string | undefined) ?? 'iso9797m2',
+            );
           case 'desFullMac':
             return mac.desFullMac(
               args[0] as string, args[1] as string,

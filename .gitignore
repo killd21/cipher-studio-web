@@ -15,6 +15,10 @@ dist-ssr
 .tasks/*
 tasks/
 
+.release
+.release/*
+release/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
