@@ -4,6 +4,7 @@ import { sha3_256, sha3_384, sha3_512, shake128, shake256 } from '@noble/hashes/
 import { blake2b, blake2s } from '@noble/hashes/blake2.js';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { ripemd160 } from '@noble/hashes/legacy.js';
+import * as sm3Mod from './sm3.ts';
 
 export async function digest(algorithm: string, dataHex: string, outputLen?: number): Promise<string> {
   const alg = algorithm.toLowerCase();
@@ -47,6 +48,10 @@ export async function digest(algorithm: string, dataHex: string, outputLen?: num
   }
   if (alg === 'ripemd160') {
     return toHex(ripemd160(buf));
+  }
+
+  if (alg === 'sm3') {
+    return sm3Mod.hash(dataHex);
   }
 
   const webCryptoAlg: Record<string, string> = {

@@ -25,6 +25,8 @@ type CryptoBridge = {
   pqc:     (op: string, ...args: unknown[]) => Promise<unknown>;
   chacha:  (op: string, ...args: unknown[]) => Promise<Hex>;
   kdf:     (op: string, ...args: unknown[]) => Promise<Hex>;
+  sm2:     (op: string, ...args: unknown[]) => Promise<unknown>;
+  sm4:     (op: string, ...args: unknown[]) => Promise<Hex>;
 };
 
 export type ElectronAPI = {
@@ -57,6 +59,8 @@ import * as ecc from './crypto/ecc.ts';
 import * as pqc from './crypto/pqc.ts';
 import * as chacha from './crypto/chacha.ts';
 import * as kdf from './crypto/kdf.ts';
+import * as sm2 from './crypto/sm2.ts';
+import * as sm4 from './crypto/sm4.ts';
 
 type PaddingOp = keyof typeof padding;
 
@@ -269,6 +273,37 @@ export function installElectronAPI(): void {
               args[3] as number, args[4] as number,
             );
           default: throw new Error(`Unknown KDF op: ${op}`);
+        }
+      },
+      sm2: async (op: string, ...args: unknown[]): Promise<unknown> => {
+        switch (op) {
+          case 'keygen':
+            return sm2.keygen();
+          case 'derivePublicKey':
+            return sm2.derivePublicKey(args[0] as string);
+          case 'sign':
+            return sm2.sign(args[0] as string, args[1] as string, args[2] as string | undefined);
+          case 'verify':
+            return sm2.verify(args[0] as string, args[1] as string, args[2] as string, args[3] as string | undefined);
+          case 'encrypt':
+            return sm2.encrypt(args[0] as string, args[1] as string, args[2] as 0 | 1 | undefined);
+          case 'decrypt':
+            return sm2.decrypt(args[0] as string, args[1] as string, args[2] as 0 | 1 | undefined);
+          default:
+            throw new Error(`Unknown SM2 op: ${op}`);
+        }
+      },
+      sm4: async (op: string, ...args: unknown[]): Promise<Hex> => {
+        const key = args[0] as string;
+        const data = args[1] as string;
+        const iv = args[2] as string | undefined;
+        const pad = args[3] as 'none' | 'pkcs#7' | undefined;
+        switch (op) {
+          case 'ecbEncrypt': return sm4.ecbEncrypt(key, data, pad);
+          case 'ecbDecrypt': return sm4.ecbDecrypt(key, data, pad);
+          case 'cbcEncrypt': return sm4.cbcEncrypt(key, data, iv!, pad);
+          case 'cbcDecrypt': return sm4.cbcDecrypt(key, data, iv!, pad);
+          default: throw new Error(`Unknown SM4 op: ${op}`);
         }
       },
       chacha: async (op: string, ...args: unknown[]): Promise<Hex> => {

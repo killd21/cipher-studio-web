@@ -519,6 +519,9 @@
       <div class="dock-item" data-panel="chacha">
         <div class="dock-icon">CC</div><span class="dock-label">ChaCha20</span>
       </div>
+      <div class="dock-item" data-panel="sm4">
+        <div class="dock-icon">S4</div><span class="dock-label">SM4</span>
+      </div>
 
       <div class="dock-group-title">Asymmetric</div>
       <div class="dock-item" data-panel="rsa">
@@ -540,6 +543,9 @@
       </div>
       <div class="dock-item" data-panel="xdh">
         <div class="dock-icon">XD</div><span class="dock-label">X-DH</span>
+      </div>
+      <div class="dock-item" data-panel="sm2">
+        <div class="dock-icon">S2</div><span class="dock-label">SM2</span>
       </div>
 
       <div class="dock-group-title">PQC (Quantum)</div>
@@ -914,7 +920,7 @@
 
         <!-- ═══════════════ HASH Panel ═══════════════ -->
         <div class="panel" id="panel-hash">
-          <div class="bento-header"><h1 class="bento-title">Hash</h1><p class="bento-subtitle">FIPS 180-4 · FIPS 202 · RFC 1321 · RFC 7693 — Hash · SHA-1/2/3, SHAKE, BLAKE, RIPEMD, MD5</p></div>
+          <div class="bento-header"><h1 class="bento-title">Hash</h1><p class="bento-subtitle">FIPS 180-4 · FIPS 202 · RFC 1321 · RFC 7693 · GM/T 0004 — Hash · SHA-1/2/3, SHAKE, BLAKE, RIPEMD, MD5, SM3</p></div>
           <div class="bento-grid">
             <div class="bento-card" style="grid-column: 1 / -1;">
               <div class="card-title">Configuration</div>
@@ -934,6 +940,7 @@
                   <option value="blake2s">BLAKE2s</option>
                   <option value="blake3">BLAKE3</option>
                   <option value="ripemd160">RIPEMD-160</option>
+                  <option value="sm3">SM3</option>
                 </select>
               </div>
             </div>
@@ -1020,10 +1027,10 @@
           </div>
         </div>
 
-        <!-- ═══════════════ ECDSA Panel ═══════════════ -->
+        <!-- ═══════════════ EC-DSA Panel ═══════════════ -->
         <div id="panel-ecdsa" class="panel">
           <div class="bento-header">
-            <h1 class="bento-title">ECDSA</h1>
+            <h1 class="bento-title">EC-DSA</h1>
             <p class="bento-subtitle">FIPS 186-5 · ANSI X9.62 — Signature · P-256 / P-384 / secp256k1</p>
           </div>
           <div class="bento-grid">
@@ -1060,10 +1067,10 @@
           </div>
         </div>
 
-        <!-- ═══════════════ ECDH Panel ═══════════════ -->
+        <!-- ═══════════════ EC-DH Panel ═══════════════ -->
         <div id="panel-ecdh" class="panel">
           <div class="bento-header">
-            <h1 class="bento-title">ECDH</h1>
+            <h1 class="bento-title">EC-DH</h1>
             <p class="bento-subtitle">NIST SP 800-56A · RFC 5903 — Key agreement · P-256 / P-384 / secp256k1</p>
           </div>
           <div class="bento-grid">
@@ -1490,6 +1497,120 @@
               <div style="display:flex; gap:10px; height:100%;"><div class="result-box" id="kdf-result"></div><button class="btn-secondary btn-icon-only" onclick="copyResult('kdf-result')">📋</button></div>
               <div class="error-msg" id="kdf-error"></div>
             </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════ SM4 Panel ═══════════════ -->
+        <div id="panel-sm4" class="panel">
+          <div class="bento-header">
+            <h1 class="bento-title">SM4</h1>
+            <p class="bento-subtitle">GM/T 0002 · ISO/IEC 18033-3 — Block cipher · 128-bit block · 128-bit key</p>
+          </div>
+          <div class="bento-grid">
+            <div class="bento-card" style="grid-column: 1 / -1;">
+              <div class="card-title">Configuration</div>
+              <div class="seg-group">
+                <select id="sm4-mode" onchange="updateSm4Mode()">
+                  <option value="ECB">ECB Mode</option>
+                  <option value="CBC">CBC Mode</option>
+                </select>
+                <select id="sm4-dir">
+                  <option value="Enc">Encrypt</option>
+                  <option value="Dec">Decrypt</option>
+                </select>
+                <select id="sm4-pad">
+                  <option value="none">No Padding</option>
+                  <option value="pkcs#7">PKCS#7</option>
+                </select>
+              </div>
+            </div>
+            <div class="bento-card">
+              <div class="card-title">Payload</div>
+              <div class="input-group"><label>Key (16 bytes)</label><input type="text" id="sm4-key" placeholder="16B (32 hex) key..."></div>
+              <div class="input-group" id="sm4-iv-group"><label>IV (16 bytes)</label><input type="text" id="sm4-iv" placeholder="16B (32 hex) IV..."></div>
+              <div class="input-group"><label>Data (hex)</label><textarea id="sm4-data" placeholder="Plaintext / ciphertext hex (multiple of 16B for No Padding)..."></textarea></div>
+              <div class="action-row">
+                <button class="btn-primary" onclick="runSm4()">Execute</button>
+                <button class="btn-secondary" onclick="clearPanel('sm4')">Clear</button>
+              </div>
+            </div>
+            <div class="bento-card">
+              <div class="card-title">Output</div>
+              <div style="display:flex; gap:10px; height:100%;"><div class="result-box" id="sm4-result"></div><button class="btn-secondary btn-icon-only" onclick="copyResult('sm4-result')">📋</button></div>
+              <div class="error-msg" id="sm4-error"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════ SM2 Panel ═══════════════ -->
+        <div id="panel-sm2" class="panel">
+          <div class="bento-header">
+            <h1 class="bento-title">SM2</h1>
+            <p class="bento-subtitle">GM/T 0003 · ISO/IEC 14888-3 — Public-key cryptography · sm2p256v1</p>
+          </div>
+          <div class="bento-grid">
+            <div class="bento-card" style="grid-column: 1 / -1;">
+              <div class="card-title">Configuration</div>
+              <div class="seg-group">
+                <select id="sm2-op" onchange="updateSm2Fields()">
+                  <option value="keygen">Key Generation</option>
+                  <option value="sign">Sign</option>
+                  <option value="verify">Verify</option>
+                  <option value="encrypt">Encrypt</option>
+                  <option value="decrypt">Decrypt</option>
+                </select>
+                <select id="sm2-cipher-mode">
+                  <option value="1" selected>C1C3C2 (current)</option>
+                  <option value="0">C1C2C3 (legacy)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="bento-card" id="sm2-keygen-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Key Generation</div>
+              <div class="action-row" style="margin-bottom:16px;"><button class="btn-primary" onclick="runSm2()">Generate Keys</button></div>
+              <div class="bento-grid">
+                <div class="input-group"><label>Public Key (uncompressed)</label><textarea id="sm2-pub-out" readonly></textarea></div>
+                <div class="input-group"><label>Private Key (32 bytes)</label><textarea id="sm2-priv-out" readonly></textarea></div>
+              </div>
+            </div>
+
+            <div class="bento-card hidden" id="sm2-sign-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Sign</div>
+              <div class="input-group"><label>Private Key</label><input type="text" id="sm2-priv-sign" placeholder="Private key hex (paste from keygen)..."></div>
+              <div class="input-group"><label>User ID (optional)</label><input type="text" id="sm2-userid-sign" placeholder="Default: 1234567812345678 (GM/T 0009)"></div>
+              <div class="input-group"><label>Message (hex)</label><textarea id="sm2-msg-sign" placeholder="Message hex to sign..."></textarea></div>
+              <div class="action-row"><button class="btn-primary" onclick="runSm2()">Sign</button></div>
+              <div class="input-group"><label>Signature</label><textarea id="sm2-sig-out" readonly></textarea></div>
+            </div>
+
+            <div class="bento-card hidden" id="sm2-verify-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Verify</div>
+              <div class="input-group"><label>Public Key</label><input type="text" id="sm2-pub-verify" placeholder="Public key hex (paste from keygen)..."></div>
+              <div class="input-group"><label>User ID (optional)</label><input type="text" id="sm2-userid-verify" placeholder="Default: 1234567812345678"></div>
+              <div class="input-group"><label>Message (hex)</label><textarea id="sm2-msg-verify" placeholder="Message hex..."></textarea></div>
+              <div class="input-group"><label>Signature</label><textarea id="sm2-sig-in" placeholder="Signature hex (paste from sign)..."></textarea></div>
+              <div class="action-row"><button class="btn-primary" onclick="runSm2()">Verify</button></div>
+              <div class="result-box" id="sm2-verify-result" style="min-height:40px;"></div>
+            </div>
+
+            <div class="bento-card hidden" id="sm2-encrypt-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Encrypt</div>
+              <div class="input-group"><label>Public Key</label><input type="text" id="sm2-pub-enc" placeholder="Public key hex..."></div>
+              <div class="input-group"><label>Data (hex)</label><textarea id="sm2-data-enc" placeholder="Plaintext hex..."></textarea></div>
+              <div class="action-row"><button class="btn-primary" onclick="runSm2()">Encrypt</button></div>
+              <div class="input-group"><label>Ciphertext</label><textarea id="sm2-ct-out" readonly></textarea></div>
+            </div>
+
+            <div class="bento-card hidden" id="sm2-decrypt-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Decrypt</div>
+              <div class="input-group"><label>Private Key</label><input type="text" id="sm2-priv-dec" placeholder="Private key hex..."></div>
+              <div class="input-group"><label>Ciphertext</label><textarea id="sm2-ct-in" placeholder="Ciphertext hex (paste from encrypt)..."></textarea></div>
+              <div class="action-row"><button class="btn-primary" onclick="runSm2()">Decrypt</button></div>
+              <div class="input-group"><label>Plaintext</label><textarea id="sm2-pt-out" readonly></textarea></div>
+            </div>
+
+            <div class="error-msg" id="sm2-error" style="grid-column: 1 / -1;"></div>
           </div>
         </div>
 
@@ -2143,6 +2264,82 @@
           addLog(`${curve.toUpperCase()} Secret`, secret);
         }
       } catch (e) { showError('xdh-error', e.message); addLog('X-DH ERROR', e.message); }
+    }
+
+    // ═══════════════════════════════ SM4 ═══════════════════════════════
+    function updateSm4Mode() {
+      const mode = document.getElementById('sm4-mode').value;
+      document.getElementById('sm4-iv-group')?.classList.toggle('hidden', mode !== 'CBC');
+    }
+
+    async function runSm4() {
+      const key = normalizeHex(document.getElementById('sm4-key').value);
+      const data = normalizeHex(document.getElementById('sm4-data').value);
+      const iv = normalizeHex(document.getElementById('sm4-iv').value);
+      const mode = document.getElementById('sm4-mode').value;
+      const dir = document.getElementById('sm4-dir').value;
+      const pad = document.getElementById('sm4-pad').value;
+      const op = `${mode.toLowerCase()}${dir}rypt`;
+      try {
+        const result = await window.electronAPI.crypto.sm4(op, key, data, iv || undefined, pad);
+        showResult('sm4-result', result, 'sm4-error');
+        addLog(`SM4 ${mode} ${dir}`, result);
+      } catch (e) { showError('sm4-error', e.message); addLog('SM4 ERROR', e.message); }
+    }
+
+    // ═══════════════════════════════ SM2 ═══════════════════════════════
+    function updateSm2Fields() {
+      const op = document.getElementById('sm2-op').value;
+      document.getElementById('sm2-keygen-section')?.classList.toggle('hidden', op !== 'keygen');
+      document.getElementById('sm2-sign-section')?.classList.toggle('hidden', op !== 'sign');
+      document.getElementById('sm2-verify-section')?.classList.toggle('hidden', op !== 'verify');
+      document.getElementById('sm2-encrypt-section')?.classList.toggle('hidden', op !== 'encrypt');
+      document.getElementById('sm2-decrypt-section')?.classList.toggle('hidden', op !== 'decrypt');
+      // Cipher mode select only relevant for encrypt/decrypt
+      const cm = document.getElementById('sm2-cipher-mode');
+      if (cm) cm.style.opacity = (op === 'encrypt' || op === 'decrypt') ? '1' : '0.4';
+    }
+
+    async function runSm2() {
+      const op = document.getElementById('sm2-op').value;
+      const cipherMode = parseInt(document.getElementById('sm2-cipher-mode').value, 10);
+      const errEl = document.getElementById('sm2-error'); errEl.textContent = '';
+      try {
+        if (op === 'keygen') {
+          const res = await window.electronAPI.crypto.sm2('keygen');
+          document.getElementById('sm2-pub-out').value = res.publicKey;
+          document.getElementById('sm2-priv-out').value = res.privateKey;
+          addLog('SM2 Keygen', 'OK');
+        } else if (op === 'sign') {
+          const priv = normalizeHex(document.getElementById('sm2-priv-sign').value);
+          const userId = document.getElementById('sm2-userid-sign').value.trim();
+          const msg = normalizeHex(document.getElementById('sm2-msg-sign').value);
+          const sig = await window.electronAPI.crypto.sm2('sign', priv, msg, userId);
+          document.getElementById('sm2-sig-out').value = sig;
+          addLog('SM2 Sign', sig);
+        } else if (op === 'verify') {
+          const pub = normalizeHex(document.getElementById('sm2-pub-verify').value);
+          const userId = document.getElementById('sm2-userid-verify').value.trim();
+          const msg = normalizeHex(document.getElementById('sm2-msg-verify').value);
+          const sig = normalizeHex(document.getElementById('sm2-sig-in').value);
+          const ok = await window.electronAPI.crypto.sm2('verify', pub, msg, sig, userId);
+          document.getElementById('sm2-verify-result').textContent = ok ? '✅ Valid Signature' : '❌ Invalid Signature';
+          document.getElementById('sm2-verify-result').style.color = ok ? 'var(--ok)' : 'var(--err)';
+          addLog('SM2 Verify', ok ? 'VALID' : 'INVALID');
+        } else if (op === 'encrypt') {
+          const pub = normalizeHex(document.getElementById('sm2-pub-enc').value);
+          const data = normalizeHex(document.getElementById('sm2-data-enc').value);
+          const ct = await window.electronAPI.crypto.sm2('encrypt', pub, data, cipherMode);
+          document.getElementById('sm2-ct-out').value = ct;
+          addLog('SM2 Encrypt', ct);
+        } else if (op === 'decrypt') {
+          const priv = normalizeHex(document.getElementById('sm2-priv-dec').value);
+          const ct = normalizeHex(document.getElementById('sm2-ct-in').value);
+          const pt = await window.electronAPI.crypto.sm2('decrypt', priv, ct, cipherMode);
+          document.getElementById('sm2-pt-out').value = pt;
+          addLog('SM2 Decrypt', pt);
+        }
+      } catch (e) { showError('sm2-error', e.message); addLog('SM2 ERROR', e.message); }
     }
 
     // ═══════════════════════════════ SLH-DSA ═══════════════════════════════
