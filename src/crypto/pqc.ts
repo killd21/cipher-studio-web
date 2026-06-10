@@ -5,6 +5,11 @@ import {
   slh_dsa_shake_128f, slh_dsa_shake_192f, slh_dsa_shake_256f,
   slh_dsa_sha2_128f, slh_dsa_sha2_192f, slh_dsa_sha2_256f,
 } from '@noble/post-quantum/slh-dsa.js';
+import {
+  aimer128f, aimer128s,
+  aimer192f, aimer192s,
+  aimer256f, aimer256s,
+} from '@killd21/aimer';
 
 function getKem(variant: number | string) {
   if (variant === 512 || variant === '512') return ml_kem512;
@@ -78,4 +83,43 @@ export function slhVerify(
   variant: string, publicKeyHex: string, messageHex: string, signatureHex: string,
 ): boolean {
   return getSlhDsa(variant).verify(toBuf(signatureHex), toBuf(messageHex), toBuf(publicKeyHex));
+}
+
+// --- AIMer (KpqC, MPCitH-based signature) ---
+export type AimerVariant = '128f' | '128s' | '192f' | '192s' | '256f' | '256s';
+
+function getAimer(variant: AimerVariant) {
+  switch (variant) {
+    case '128f': return aimer128f;
+    case '128s': return aimer128s;
+    case '192f': return aimer192f;
+    case '192s': return aimer192s;
+    case '256f': return aimer256f;
+    case '256s': return aimer256s;
+    default: throw new Error(`Unknown AIMer variant: ${variant}`);
+  }
+}
+
+export async function aimerKeygen(variant: AimerVariant): Promise<{ publicKey: string; secretKey: string }> {
+  const { publicKey, secretKey } = await getAimer(variant).keygen();
+  return { publicKey: toHex(publicKey), secretKey: toHex(secretKey) };
+}
+
+export async function aimerSign(
+  variant: AimerVariant, secretKeyHex: string, messageHex: string, contextHex?: string,
+): Promise<string> {
+  const opts = contextHex ? { context: toBuf(contextHex) } : undefined;
+  const sig = await getAimer(variant).sign(toBuf(messageHex), toBuf(secretKeyHex), opts);
+  return toHex(sig);
+}
+
+export async function aimerVerify(
+  variant: AimerVariant, publicKeyHex: string, messageHex: string, signatureHex: string, contextHex?: string,
+): Promise<boolean> {
+  const opts = contextHex ? { context: toBuf(contextHex) } : undefined;
+  try {
+    return await getAimer(variant).verify(toBuf(messageHex), toBuf(signatureHex), toBuf(publicKeyHex), opts);
+  } catch {
+    return false;
+  }
 }

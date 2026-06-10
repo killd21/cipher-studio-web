@@ -558,6 +558,9 @@
       <div class="dock-item" data-panel="slhdsa">
         <div class="dock-icon">SL</div><span class="dock-label">SLH-DSA</span>
       </div>
+      <div class="dock-item" data-panel="aimer">
+        <div class="dock-icon">AI</div><span class="dock-label">AIMer</span>
+      </div>
 
       <div class="dock-group-title">Utility</div>
       <div class="dock-item" data-panel="mac">
@@ -1500,6 +1503,64 @@
           </div>
         </div>
 
+        <!-- ═══════════════ AIMer Panel ═══════════════ -->
+        <div id="panel-aimer" class="panel">
+          <div class="bento-header">
+            <h1 class="bento-title">AIMer</h1>
+            <p class="bento-subtitle">KpqC (Korean Post-Quantum Cryptography) — MPCitH signature · 128/192/256-bit security</p>
+          </div>
+          <div class="bento-grid">
+            <div class="bento-card" style="grid-column: 1 / -1;">
+              <div class="card-title">Configuration</div>
+              <div class="seg-group">
+                <select id="aimer-op" onchange="updateAimerFields()">
+                  <option value="keygen">Key Generation</option>
+                  <option value="sign">Sign</option>
+                  <option value="verify">Verify</option>
+                </select>
+                <select id="aimer-variant">
+                  <option value="128f" selected>aimer128f (fast)</option>
+                  <option value="128s">aimer128s (small)</option>
+                  <option value="192f">aimer192f (fast)</option>
+                  <option value="192s">aimer192s (small)</option>
+                  <option value="256f">aimer256f (fast)</option>
+                  <option value="256s">aimer256s (small)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="bento-card" id="aimer-keygen-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Key Generation (may take a moment on first call — WASM init)</div>
+              <div class="action-row" style="margin-bottom:16px;"><button class="btn-primary" onclick="runAimer()">Generate Keys</button></div>
+              <div class="bento-grid">
+                <div class="input-group"><label>Public Key</label><textarea id="aimer-pk-out" readonly></textarea></div>
+                <div class="input-group"><label>Secret Key</label><textarea id="aimer-sk-out" readonly></textarea></div>
+              </div>
+            </div>
+
+            <div class="bento-card hidden" id="aimer-sign-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Sign (signatures can be ~10–40 KB)</div>
+              <div class="input-group"><label>Secret Key</label><textarea id="aimer-sk-in" placeholder="Secret key hex (paste from keygen output)..."></textarea></div>
+              <div class="input-group"><label>Message (hex)</label><textarea id="aimer-msg-sign" placeholder="Message hex to sign..."></textarea></div>
+              <div class="input-group"><label>Context (optional, hex, ≤ 255 B)</label><input type="text" id="aimer-ctx-sign" placeholder="Optional context hex for domain binding..."></div>
+              <div class="action-row"><button class="btn-primary" onclick="runAimer()">Sign</button></div>
+              <div class="input-group"><label>Signature</label><textarea id="aimer-sig-out" readonly style="min-height:120px;"></textarea></div>
+            </div>
+
+            <div class="bento-card hidden" id="aimer-verify-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Verify</div>
+              <div class="input-group"><label>Public Key</label><textarea id="aimer-pk-in" placeholder="Public key hex (paste from keygen output)..."></textarea></div>
+              <div class="input-group"><label>Message (hex)</label><textarea id="aimer-msg-verify" placeholder="Message hex to verify..."></textarea></div>
+              <div class="input-group"><label>Context (optional, hex, ≤ 255 B)</label><input type="text" id="aimer-ctx-verify" placeholder="Must match the context used during signing..."></div>
+              <div class="input-group"><label>Signature</label><textarea id="aimer-sig-in" placeholder="Signature hex (paste from sign output)..." style="min-height:120px;"></textarea></div>
+              <div class="action-row"><button class="btn-primary" onclick="runAimer()">Verify</button></div>
+              <div class="result-box" id="aimer-verify-result" style="min-height:40px;"></div>
+            </div>
+
+            <div class="error-msg" id="aimer-error" style="grid-column: 1 / -1;"></div>
+          </div>
+        </div>
+
         <!-- ═══════════════ SM4 Panel ═══════════════ -->
         <div id="panel-sm4" class="panel">
           <div class="bento-header">
@@ -2376,6 +2437,44 @@
           addLog(`SLH-DSA ${variant} Verify`, ok ? 'VALID' : 'INVALID');
         }
       } catch (e) { showError('slhdsa-error', e.message); addLog('SLH-DSA ERROR', e.message); }
+    }
+
+    // ═══════════════════════════════ AIMer (KpqC) ═══════════════════════════════
+    function updateAimerFields() {
+      const op = document.getElementById('aimer-op').value;
+      document.getElementById('aimer-keygen-section')?.classList.toggle('hidden', op !== 'keygen');
+      document.getElementById('aimer-sign-section')?.classList.toggle('hidden', op !== 'sign');
+      document.getElementById('aimer-verify-section')?.classList.toggle('hidden', op !== 'verify');
+    }
+
+    async function runAimer() {
+      const op = document.getElementById('aimer-op').value;
+      const variant = document.getElementById('aimer-variant').value;
+      const errEl = document.getElementById('aimer-error'); errEl.textContent = '';
+      try {
+        if (op === 'keygen') {
+          const res = await window.electronAPI.crypto.pqc('aimerKeygen', variant);
+          document.getElementById('aimer-pk-out').value = res.publicKey;
+          document.getElementById('aimer-sk-out').value = res.secretKey;
+          addLog(`AIMer-${variant} Keygen`, 'OK');
+        } else if (op === 'sign') {
+          const sk = normalizeHex(document.getElementById('aimer-sk-in').value);
+          const msg = normalizeHex(document.getElementById('aimer-msg-sign').value);
+          const ctx = normalizeHex(document.getElementById('aimer-ctx-sign').value) || undefined;
+          const sig = await window.electronAPI.crypto.pqc('aimerSign', variant, sk, msg, ctx);
+          document.getElementById('aimer-sig-out').value = sig;
+          addLog(`AIMer-${variant} Sign`, `${sig.length / 2} bytes`);
+        } else {
+          const pk = normalizeHex(document.getElementById('aimer-pk-in').value);
+          const msg = normalizeHex(document.getElementById('aimer-msg-verify').value);
+          const ctx = normalizeHex(document.getElementById('aimer-ctx-verify').value) || undefined;
+          const sig = normalizeHex(document.getElementById('aimer-sig-in').value);
+          const ok = await window.electronAPI.crypto.pqc('aimerVerify', variant, pk, msg, sig, ctx);
+          document.getElementById('aimer-verify-result').textContent = ok ? '✅ Valid Signature' : '❌ Invalid Signature';
+          document.getElementById('aimer-verify-result').style.color = ok ? 'var(--ok)' : 'var(--err)';
+          addLog(`AIMer-${variant} Verify`, ok ? 'VALID' : 'INVALID');
+        }
+      } catch (e) { showError('aimer-error', e.message); addLog('AIMer ERROR', e.message); }
     }
 
     // ═══════════════════════════════ KDF ═══════════════════════════════

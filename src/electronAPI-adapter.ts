@@ -343,6 +343,17 @@ export function installElectronAPI(): void {
             return pqc.slhVerify(
               args[0] as string, args[1] as string, args[2] as string, args[3] as string,
             );
+          case 'aimerKeygen':
+            return pqc.aimerKeygen(args[0] as pqc.AimerVariant);
+          case 'aimerSign':
+            return pqc.aimerSign(
+              args[0] as pqc.AimerVariant, args[1] as string, args[2] as string, args[3] as string | undefined,
+            );
+          case 'aimerVerify':
+            return pqc.aimerVerify(
+              args[0] as pqc.AimerVariant, args[1] as string, args[2] as string,
+              args[3] as string, args[4] as string | undefined,
+            );
           default:
             throw new Error(`Unknown PQC op: ${op}`);
         }
