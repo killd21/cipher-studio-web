@@ -46,6 +46,9 @@ A browser-based cryptography toolkit. All operations run client-side with no ser
 | ML-DSA | FIPS 204 | ML-DSA-44 / 65 / 87 | Keygen / Sign / Verify |
 | SLH-DSA | FIPS 205 | SHAKE / SHA2 × 128 / 192 / 256 (fast variants) | Keygen / Sign / Verify |
 | AIMer | KpqC (Korea) | aimer128 / 192 / 256 × f (fast) / s (small) | Keygen / Sign / Verify (with optional context) |
+| HAETAE | KpqC (Korea) | haetae2 / 3 / 5 (128 / 192 / 256-bit) | Keygen / Sign / Verify (with optional context) |
+| NTRU+ | KpqC (Korea) | ntruplus768 / 864 / 1152 | Keygen / Encapsulate / Decapsulate |
+| SMAUG-T / TiMER | KpqC (Korea) | smaugt128 / 192 / 256 + timer | Keygen / Encapsulate / Decapsulate |
 
 ### Utilities
 
@@ -82,13 +85,13 @@ K' can be auto-derived from K via **Key Derivation Method 2** (`K' = K ⊕ 0xF0�
 [![@noble/hashes](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/@noble/hashes?branch=master&logo=npm&logoColor=white&label=%40noble%2Fhashes&color=8B5CF6)](https://www.npmjs.com/package/@noble/hashes)
 [![@noble/post-quantum](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/@noble/post-quantum?branch=master&logo=npm&logoColor=white&label=%40noble%2Fpost-quantum&color=8B5CF6)](https://www.npmjs.com/package/@noble/post-quantum)
 [![sm-crypto](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/sm-crypto?branch=master&logo=npm&logoColor=white&label=sm-crypto&color=E11D48)](https://www.npmjs.com/package/sm-crypto)
-[![@killd21/aimer](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/@killd21/aimer?branch=master&logo=npm&logoColor=white&label=%40killd21%2Faimer&color=003478)](https://www.npmjs.com/package/@killd21/aimer)
+[![@killd21/kpqc](https://img.shields.io/github/package-json/dependency-version/killd21/cipher-studio-web/@killd21/kpqc?branch=master&logo=npm&logoColor=white&label=%40killd21%2Fkpqc&color=003478)](https://www.npmjs.com/package/@killd21/kpqc)
 
 ### Repository
 [![Release](https://img.shields.io/github/v/release/killd21/cipher-studio-web?logo=github&label=Release&color=blueviolet)](https://github.com/killd21/cipher-studio-web/releases/latest)
 [![CI](https://github.com/killd21/cipher-studio-web/actions/workflows/ci.yml/badge.svg)](https://github.com/killd21/cipher-studio-web/actions/workflows/ci.yml)
 [![Last Commit](https://img.shields.io/github/last-commit/killd21/cipher-studio-web?logo=github)](https://github.com/killd21/cipher-studio-web/commits/master)
-[![Tests](https://img.shields.io/badge/tests-318%20passed-success?logo=vitest&logoColor=white)](./test)
+[![Tests](https://img.shields.io/badge/tests-335%20passed-success?logo=vitest&logoColor=white)](./test)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 ## I/O Format

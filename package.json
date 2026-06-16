@@ -16,7 +16,7 @@
     "vitest": "^4.1.7"
   },
   "dependencies": {
-    "@killd21/aimer": "^0.1.0",
+    "@killd21/kpqc": "^0.2.0",
     "@noble/ciphers": "^2.2.0",
     "@noble/curves": "^2.2.0",
     "@noble/hashes": "^2.2.0",

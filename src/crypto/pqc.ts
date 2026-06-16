@@ -9,7 +9,16 @@ import {
   aimer128f, aimer128s,
   aimer192f, aimer192s,
   aimer256f, aimer256s,
-} from '@killd21/aimer';
+} from '@killd21/kpqc/aimer';
+import {
+  haetae2, haetae3, haetae5,
+} from '@killd21/kpqc/haetae';
+import {
+  ntruplus768, ntruplus864, ntruplus1152,
+} from '@killd21/kpqc/ntruplus';
+import {
+  smaugt128, smaugt192, smaugt256, timer as smaugtTimer,
+} from '@killd21/kpqc/smaugt';
 
 function getKem(variant: number | string) {
   if (variant === 512 || variant === '512') return ml_kem512;
@@ -122,4 +131,103 @@ export async function aimerVerify(
   } catch {
     return false;
   }
+}
+
+// --- HAETAE (KpqC, lattice-based signature) ---
+export type HaetaeVariant = '2' | '3' | '5';
+
+function getHaetae(variant: HaetaeVariant) {
+  switch (variant) {
+    case '2': return haetae2;
+    case '3': return haetae3;
+    case '5': return haetae5;
+    default: throw new Error(`Unknown HAETAE variant: ${variant}`);
+  }
+}
+
+export async function haetaeKeygen(variant: HaetaeVariant): Promise<{ publicKey: string; secretKey: string }> {
+  const { publicKey, secretKey } = await getHaetae(variant).keygen();
+  return { publicKey: toHex(publicKey), secretKey: toHex(secretKey) };
+}
+
+export async function haetaeSign(
+  variant: HaetaeVariant, secretKeyHex: string, messageHex: string, contextHex?: string,
+): Promise<string> {
+  const opts = contextHex ? { context: toBuf(contextHex) } : undefined;
+  const sig = await getHaetae(variant).sign(toBuf(messageHex), toBuf(secretKeyHex), opts);
+  return toHex(sig);
+}
+
+export async function haetaeVerify(
+  variant: HaetaeVariant, publicKeyHex: string, messageHex: string, signatureHex: string, contextHex?: string,
+): Promise<boolean> {
+  const opts = contextHex ? { context: toBuf(contextHex) } : undefined;
+  try {
+    return await getHaetae(variant).verify(toBuf(messageHex), toBuf(signatureHex), toBuf(publicKeyHex), opts);
+  } catch {
+    return false;
+  }
+}
+
+// --- NTRU+ (KpqC, lattice-based KEM) ---
+export type NtruPlusVariant = '768' | '864' | '1152';
+
+function getNtruPlus(variant: NtruPlusVariant) {
+  switch (variant) {
+    case '768': return ntruplus768;
+    case '864': return ntruplus864;
+    case '1152': return ntruplus1152;
+    default: throw new Error(`Unknown NTRU+ variant: ${variant}`);
+  }
+}
+
+export async function ntruplusKeygen(variant: NtruPlusVariant): Promise<{ publicKey: string; secretKey: string }> {
+  const { publicKey, secretKey } = await getNtruPlus(variant).keygen();
+  return { publicKey: toHex(publicKey), secretKey: toHex(secretKey) };
+}
+
+export async function ntruplusEncapsulate(
+  variant: NtruPlusVariant, publicKeyHex: string,
+): Promise<{ ciphertext: string; sharedSecret: string }> {
+  const { ciphertext, sharedSecret } = await getNtruPlus(variant).encapsulate(toBuf(publicKeyHex));
+  return { ciphertext: toHex(ciphertext), sharedSecret: toHex(sharedSecret) };
+}
+
+export async function ntruplusDecapsulate(
+  variant: NtruPlusVariant, secretKeyHex: string, ciphertextHex: string,
+): Promise<string> {
+  const ss = await getNtruPlus(variant).decapsulate(toBuf(ciphertextHex), toBuf(secretKeyHex));
+  return toHex(ss);
+}
+
+// --- SMAUG-T / TiMER (KpqC, lattice-based KEM) ---
+export type SmaugtVariant = '128' | '192' | '256' | 'timer';
+
+function getSmaugt(variant: SmaugtVariant) {
+  switch (variant) {
+    case '128': return smaugt128;
+    case '192': return smaugt192;
+    case '256': return smaugt256;
+    case 'timer': return smaugtTimer;
+    default: throw new Error(`Unknown SMAUG-T variant: ${variant}`);
+  }
+}
+
+export async function smaugtKeygen(variant: SmaugtVariant): Promise<{ publicKey: string; secretKey: string }> {
+  const { publicKey, secretKey } = await getSmaugt(variant).keygen();
+  return { publicKey: toHex(publicKey), secretKey: toHex(secretKey) };
+}
+
+export async function smaugtEncapsulate(
+  variant: SmaugtVariant, publicKeyHex: string,
+): Promise<{ ciphertext: string; sharedSecret: string }> {
+  const { ciphertext, sharedSecret } = await getSmaugt(variant).encapsulate(toBuf(publicKeyHex));
+  return { ciphertext: toHex(ciphertext), sharedSecret: toHex(sharedSecret) };
+}
+
+export async function smaugtDecapsulate(
+  variant: SmaugtVariant, secretKeyHex: string, ciphertextHex: string,
+): Promise<string> {
+  const ss = await getSmaugt(variant).decapsulate(toBuf(ciphertextHex), toBuf(secretKeyHex));
+  return toHex(ss);
 }

@@ -561,6 +561,15 @@
       <div class="dock-item" data-panel="aimer">
         <div class="dock-icon">AI</div><span class="dock-label">AIMer</span>
       </div>
+      <div class="dock-item" data-panel="haetae">
+        <div class="dock-icon">HT</div><span class="dock-label">HAETAE</span>
+      </div>
+      <div class="dock-item" data-panel="ntruplus">
+        <div class="dock-icon">N+</div><span class="dock-label">NTRU+</span>
+      </div>
+      <div class="dock-item" data-panel="smaugt">
+        <div class="dock-icon">ST</div><span class="dock-label">SMAUG-T</span>
+      </div>
 
       <div class="dock-group-title">Utility</div>
       <div class="dock-item" data-panel="mac">
@@ -1561,6 +1570,158 @@
           </div>
         </div>
 
+        <!-- ═══════════════ HAETAE Panel ═══════════════ -->
+        <div id="panel-haetae" class="panel">
+          <div class="bento-header">
+            <h1 class="bento-title">HAETAE</h1>
+            <p class="bento-subtitle">KpqC — Lattice-based signature (HAETAE-Mode2/3/5) · 128/192/256-bit security</p>
+          </div>
+          <div class="bento-grid">
+            <div class="bento-card" style="grid-column: 1 / -1;">
+              <div class="card-title">Configuration</div>
+              <div class="seg-group">
+                <select id="haetae-op" onchange="updateHaetaeFields()">
+                  <option value="keygen">Key Generation</option>
+                  <option value="sign">Sign</option>
+                  <option value="verify">Verify</option>
+                </select>
+                <select id="haetae-variant">
+                  <option value="2" selected>HAETAE-Mode2 (128-bit)</option>
+                  <option value="3">HAETAE-Mode3 (192-bit)</option>
+                  <option value="5">HAETAE-Mode5 (256-bit)</option>
+                </select>
+              </div>
+            </div>
+            <div class="bento-card" id="haetae-keygen-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Key Generation</div>
+              <div class="action-row" style="margin-bottom:16px;"><button class="btn-primary" onclick="runHaetae()">Generate Keys</button></div>
+              <div class="bento-grid">
+                <div class="input-group"><label>Public Key</label><textarea id="haetae-pk-out" readonly></textarea></div>
+                <div class="input-group"><label>Secret Key</label><textarea id="haetae-sk-out" readonly></textarea></div>
+              </div>
+            </div>
+            <div class="bento-card hidden" id="haetae-sign-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Sign</div>
+              <div class="input-group"><label>Secret Key</label><textarea id="haetae-sk-in" placeholder="Secret key hex..."></textarea></div>
+              <div class="input-group"><label>Message (hex)</label><textarea id="haetae-msg-sign" placeholder="Message hex to sign..."></textarea></div>
+              <div class="input-group"><label>Context (optional, hex, ≤ 255 B)</label><input type="text" id="haetae-ctx-sign" placeholder="Optional context hex..."></div>
+              <div class="action-row"><button class="btn-primary" onclick="runHaetae()">Sign</button></div>
+              <div class="input-group"><label>Signature</label><textarea id="haetae-sig-out" readonly></textarea></div>
+            </div>
+            <div class="bento-card hidden" id="haetae-verify-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Verify</div>
+              <div class="input-group"><label>Public Key</label><textarea id="haetae-pk-in" placeholder="Public key hex..."></textarea></div>
+              <div class="input-group"><label>Message (hex)</label><textarea id="haetae-msg-verify" placeholder="Message hex..."></textarea></div>
+              <div class="input-group"><label>Context (optional, hex)</label><input type="text" id="haetae-ctx-verify" placeholder="Must match signing context..."></div>
+              <div class="input-group"><label>Signature</label><textarea id="haetae-sig-in" placeholder="Signature hex..."></textarea></div>
+              <div class="action-row"><button class="btn-primary" onclick="runHaetae()">Verify</button></div>
+              <div class="result-box" id="haetae-verify-result" style="min-height:40px;"></div>
+            </div>
+            <div class="error-msg" id="haetae-error" style="grid-column: 1 / -1;"></div>
+          </div>
+        </div>
+
+        <!-- ═══════════════ NTRU+ Panel ═══════════════ -->
+        <div id="panel-ntruplus" class="panel">
+          <div class="bento-header">
+            <h1 class="bento-title">NTRU+</h1>
+            <p class="bento-subtitle">KpqC — Lattice-based KEM (NTRU+) · 768 / 864 / 1152</p>
+          </div>
+          <div class="bento-grid">
+            <div class="bento-card" style="grid-column: 1 / -1;">
+              <div class="card-title">Configuration</div>
+              <div class="seg-group">
+                <select id="ntruplus-op" onchange="updateNtruplusFields()">
+                  <option value="keygen">Key Generation</option>
+                  <option value="encap">Encapsulate</option>
+                  <option value="decap">Decapsulate</option>
+                </select>
+                <select id="ntruplus-variant">
+                  <option value="768" selected>NTRU+768</option>
+                  <option value="864">NTRU+864</option>
+                  <option value="1152">NTRU+1152</option>
+                </select>
+              </div>
+            </div>
+            <div class="bento-card" id="ntruplus-keygen-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Key Generation</div>
+              <div class="action-row" style="margin-bottom:16px;"><button class="btn-primary" onclick="runNtruplus()">Generate Keys</button></div>
+              <div class="bento-grid">
+                <div class="input-group"><label>Public Key</label><textarea id="ntruplus-pk-out" readonly></textarea></div>
+                <div class="input-group"><label>Secret Key</label><textarea id="ntruplus-sk-out" readonly></textarea></div>
+              </div>
+            </div>
+            <div class="bento-card hidden" id="ntruplus-encap-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Encapsulate</div>
+              <div class="input-group"><label>Public Key</label><textarea id="ntruplus-pk-in" placeholder="Public key hex..."></textarea></div>
+              <div class="action-row"><button class="btn-primary" onclick="runNtruplus()">Encapsulate</button></div>
+              <div class="bento-grid">
+                <div class="input-group"><label>Ciphertext</label><textarea id="ntruplus-ct-out" readonly></textarea></div>
+                <div class="input-group"><label>Shared Secret</label><textarea id="ntruplus-ss-encap-out" readonly></textarea></div>
+              </div>
+            </div>
+            <div class="bento-card hidden" id="ntruplus-decap-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Decapsulate</div>
+              <div class="input-group"><label>Secret Key</label><textarea id="ntruplus-sk-in" placeholder="Secret key hex..."></textarea></div>
+              <div class="input-group"><label>Ciphertext</label><textarea id="ntruplus-ct-in" placeholder="Ciphertext hex..."></textarea></div>
+              <div class="action-row"><button class="btn-primary" onclick="runNtruplus()">Decapsulate</button></div>
+              <div class="input-group"><label>Shared Secret</label><textarea id="ntruplus-ss-decap-out" readonly></textarea></div>
+            </div>
+            <div class="error-msg" id="ntruplus-error" style="grid-column: 1 / -1;"></div>
+          </div>
+        </div>
+
+        <!-- ═══════════════ SMAUG-T Panel ═══════════════ -->
+        <div id="panel-smaugt" class="panel">
+          <div class="bento-header">
+            <h1 class="bento-title">SMAUG-T</h1>
+            <p class="bento-subtitle">KpqC — Lattice-based KEM (SMAUG-T / TiMER) · 128/192/256-bit</p>
+          </div>
+          <div class="bento-grid">
+            <div class="bento-card" style="grid-column: 1 / -1;">
+              <div class="card-title">Configuration</div>
+              <div class="seg-group">
+                <select id="smaugt-op" onchange="updateSmaugtFields()">
+                  <option value="keygen">Key Generation</option>
+                  <option value="encap">Encapsulate</option>
+                  <option value="decap">Decapsulate</option>
+                </select>
+                <select id="smaugt-variant">
+                  <option value="128" selected>SMAUG-T 128</option>
+                  <option value="192">SMAUG-T 192</option>
+                  <option value="256">SMAUG-T 256</option>
+                  <option value="timer">TiMER (related cipher)</option>
+                </select>
+              </div>
+            </div>
+            <div class="bento-card" id="smaugt-keygen-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Key Generation</div>
+              <div class="action-row" style="margin-bottom:16px;"><button class="btn-primary" onclick="runSmaugt()">Generate Keys</button></div>
+              <div class="bento-grid">
+                <div class="input-group"><label>Public Key</label><textarea id="smaugt-pk-out" readonly></textarea></div>
+                <div class="input-group"><label>Secret Key</label><textarea id="smaugt-sk-out" readonly></textarea></div>
+              </div>
+            </div>
+            <div class="bento-card hidden" id="smaugt-encap-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Encapsulate</div>
+              <div class="input-group"><label>Public Key</label><textarea id="smaugt-pk-in" placeholder="Public key hex..."></textarea></div>
+              <div class="action-row"><button class="btn-primary" onclick="runSmaugt()">Encapsulate</button></div>
+              <div class="bento-grid">
+                <div class="input-group"><label>Ciphertext</label><textarea id="smaugt-ct-out" readonly></textarea></div>
+                <div class="input-group"><label>Shared Secret</label><textarea id="smaugt-ss-encap-out" readonly></textarea></div>
+              </div>
+            </div>
+            <div class="bento-card hidden" id="smaugt-decap-section" style="grid-column: 1 / -1;">
+              <div class="card-title">Decapsulate</div>
+              <div class="input-group"><label>Secret Key</label><textarea id="smaugt-sk-in" placeholder="Secret key hex..."></textarea></div>
+              <div class="input-group"><label>Ciphertext</label><textarea id="smaugt-ct-in" placeholder="Ciphertext hex..."></textarea></div>
+              <div class="action-row"><button class="btn-primary" onclick="runSmaugt()">Decapsulate</button></div>
+              <div class="input-group"><label>Shared Secret</label><textarea id="smaugt-ss-decap-out" readonly></textarea></div>
+            </div>
+            <div class="error-msg" id="smaugt-error" style="grid-column: 1 / -1;"></div>
+          </div>
+        </div>
+
         <!-- ═══════════════ SM4 Panel ═══════════════ -->
         <div id="panel-sm4" class="panel">
           <div class="bento-header">
@@ -2475,6 +2636,113 @@
           addLog(`AIMer-${variant} Verify`, ok ? 'VALID' : 'INVALID');
         }
       } catch (e) { showError('aimer-error', e.message); addLog('AIMer ERROR', e.message); }
+    }
+
+    // ═══════════════════════════════ HAETAE (KpqC) ═══════════════════════════════
+    function updateHaetaeFields() {
+      const op = document.getElementById('haetae-op').value;
+      document.getElementById('haetae-keygen-section')?.classList.toggle('hidden', op !== 'keygen');
+      document.getElementById('haetae-sign-section')?.classList.toggle('hidden', op !== 'sign');
+      document.getElementById('haetae-verify-section')?.classList.toggle('hidden', op !== 'verify');
+    }
+
+    async function runHaetae() {
+      const op = document.getElementById('haetae-op').value;
+      const variant = document.getElementById('haetae-variant').value;
+      const errEl = document.getElementById('haetae-error'); errEl.textContent = '';
+      try {
+        if (op === 'keygen') {
+          const res = await window.electronAPI.crypto.pqc('haetaeKeygen', variant);
+          document.getElementById('haetae-pk-out').value = res.publicKey;
+          document.getElementById('haetae-sk-out').value = res.secretKey;
+          addLog(`HAETAE-${variant} Keygen`, 'OK');
+        } else if (op === 'sign') {
+          const sk = normalizeHex(document.getElementById('haetae-sk-in').value);
+          const msg = normalizeHex(document.getElementById('haetae-msg-sign').value);
+          const ctx = normalizeHex(document.getElementById('haetae-ctx-sign').value) || undefined;
+          const sig = await window.electronAPI.crypto.pqc('haetaeSign', variant, sk, msg, ctx);
+          document.getElementById('haetae-sig-out').value = sig;
+          addLog(`HAETAE-${variant} Sign`, `${sig.length / 2} bytes`);
+        } else {
+          const pk = normalizeHex(document.getElementById('haetae-pk-in').value);
+          const msg = normalizeHex(document.getElementById('haetae-msg-verify').value);
+          const ctx = normalizeHex(document.getElementById('haetae-ctx-verify').value) || undefined;
+          const sig = normalizeHex(document.getElementById('haetae-sig-in').value);
+          const ok = await window.electronAPI.crypto.pqc('haetaeVerify', variant, pk, msg, sig, ctx);
+          document.getElementById('haetae-verify-result').textContent = ok ? '✅ Valid Signature' : '❌ Invalid Signature';
+          document.getElementById('haetae-verify-result').style.color = ok ? 'var(--ok)' : 'var(--err)';
+          addLog(`HAETAE-${variant} Verify`, ok ? 'VALID' : 'INVALID');
+        }
+      } catch (e) { showError('haetae-error', e.message); addLog('HAETAE ERROR', e.message); }
+    }
+
+    // ═══════════════════════════════ NTRU+ (KpqC) ═══════════════════════════════
+    function updateNtruplusFields() {
+      const op = document.getElementById('ntruplus-op').value;
+      document.getElementById('ntruplus-keygen-section')?.classList.toggle('hidden', op !== 'keygen');
+      document.getElementById('ntruplus-encap-section')?.classList.toggle('hidden', op !== 'encap');
+      document.getElementById('ntruplus-decap-section')?.classList.toggle('hidden', op !== 'decap');
+    }
+
+    async function runNtruplus() {
+      const op = document.getElementById('ntruplus-op').value;
+      const variant = document.getElementById('ntruplus-variant').value;
+      const errEl = document.getElementById('ntruplus-error'); errEl.textContent = '';
+      try {
+        if (op === 'keygen') {
+          const res = await window.electronAPI.crypto.pqc('ntruplusKeygen', variant);
+          document.getElementById('ntruplus-pk-out').value = res.publicKey;
+          document.getElementById('ntruplus-sk-out').value = res.secretKey;
+          addLog(`NTRU+${variant} Keygen`, 'OK');
+        } else if (op === 'encap') {
+          const pk = normalizeHex(document.getElementById('ntruplus-pk-in').value);
+          const res = await window.electronAPI.crypto.pqc('ntruplusEncapsulate', variant, pk);
+          document.getElementById('ntruplus-ct-out').value = res.ciphertext;
+          document.getElementById('ntruplus-ss-encap-out').value = res.sharedSecret;
+          addLog(`NTRU+${variant} Encap`, 'OK');
+        } else {
+          const sk = normalizeHex(document.getElementById('ntruplus-sk-in').value);
+          const ct = normalizeHex(document.getElementById('ntruplus-ct-in').value);
+          const ss = await window.electronAPI.crypto.pqc('ntruplusDecapsulate', variant, sk, ct);
+          document.getElementById('ntruplus-ss-decap-out').value = ss;
+          addLog(`NTRU+${variant} Decap`, ss);
+        }
+      } catch (e) { showError('ntruplus-error', e.message); addLog('NTRU+ ERROR', e.message); }
+    }
+
+    // ═══════════════════════════════ SMAUG-T / TiMER (KpqC) ═══════════════════════════════
+    function updateSmaugtFields() {
+      const op = document.getElementById('smaugt-op').value;
+      document.getElementById('smaugt-keygen-section')?.classList.toggle('hidden', op !== 'keygen');
+      document.getElementById('smaugt-encap-section')?.classList.toggle('hidden', op !== 'encap');
+      document.getElementById('smaugt-decap-section')?.classList.toggle('hidden', op !== 'decap');
+    }
+
+    async function runSmaugt() {
+      const op = document.getElementById('smaugt-op').value;
+      const variant = document.getElementById('smaugt-variant').value;
+      const errEl = document.getElementById('smaugt-error'); errEl.textContent = '';
+      const label = variant === 'timer' ? 'TiMER' : `SMAUG-T ${variant}`;
+      try {
+        if (op === 'keygen') {
+          const res = await window.electronAPI.crypto.pqc('smaugtKeygen', variant);
+          document.getElementById('smaugt-pk-out').value = res.publicKey;
+          document.getElementById('smaugt-sk-out').value = res.secretKey;
+          addLog(`${label} Keygen`, 'OK');
+        } else if (op === 'encap') {
+          const pk = normalizeHex(document.getElementById('smaugt-pk-in').value);
+          const res = await window.electronAPI.crypto.pqc('smaugtEncapsulate', variant, pk);
+          document.getElementById('smaugt-ct-out').value = res.ciphertext;
+          document.getElementById('smaugt-ss-encap-out').value = res.sharedSecret;
+          addLog(`${label} Encap`, 'OK');
+        } else {
+          const sk = normalizeHex(document.getElementById('smaugt-sk-in').value);
+          const ct = normalizeHex(document.getElementById('smaugt-ct-in').value);
+          const ss = await window.electronAPI.crypto.pqc('smaugtDecapsulate', variant, sk, ct);
+          document.getElementById('smaugt-ss-decap-out').value = ss;
+          addLog(`${label} Decap`, ss);
+        }
+      } catch (e) { showError('smaugt-error', e.message); addLog('SMAUG-T ERROR', e.message); }
     }
 
     // ═══════════════════════════════ KDF ═══════════════════════════════

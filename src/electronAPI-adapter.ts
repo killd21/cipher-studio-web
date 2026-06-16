@@ -354,6 +354,29 @@ export function installElectronAPI(): void {
               args[0] as pqc.AimerVariant, args[1] as string, args[2] as string,
               args[3] as string, args[4] as string | undefined,
             );
+          case 'haetaeKeygen':
+            return pqc.haetaeKeygen(args[0] as pqc.HaetaeVariant);
+          case 'haetaeSign':
+            return pqc.haetaeSign(
+              args[0] as pqc.HaetaeVariant, args[1] as string, args[2] as string, args[3] as string | undefined,
+            );
+          case 'haetaeVerify':
+            return pqc.haetaeVerify(
+              args[0] as pqc.HaetaeVariant, args[1] as string, args[2] as string,
+              args[3] as string, args[4] as string | undefined,
+            );
+          case 'ntruplusKeygen':
+            return pqc.ntruplusKeygen(args[0] as pqc.NtruPlusVariant);
+          case 'ntruplusEncapsulate':
+            return pqc.ntruplusEncapsulate(args[0] as pqc.NtruPlusVariant, args[1] as string);
+          case 'ntruplusDecapsulate':
+            return pqc.ntruplusDecapsulate(args[0] as pqc.NtruPlusVariant, args[1] as string, args[2] as string);
+          case 'smaugtKeygen':
+            return pqc.smaugtKeygen(args[0] as pqc.SmaugtVariant);
+          case 'smaugtEncapsulate':
+            return pqc.smaugtEncapsulate(args[0] as pqc.SmaugtVariant, args[1] as string);
+          case 'smaugtDecapsulate':
+            return pqc.smaugtDecapsulate(args[0] as pqc.SmaugtVariant, args[1] as string, args[2] as string);
           default:
             throw new Error(`Unknown PQC op: ${op}`);
         }
