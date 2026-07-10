@@ -284,6 +284,7 @@
       background: var(--color-border); border-radius: 4px; color: var(--text-muted);
     }
     .byte-badge.has-data { color: var(--accent); background: var(--accent-glow); }
+    .byte-badge.odd { color: #fff; background: var(--err); }
 
     input, select, textarea {
       width: 100%;
@@ -1888,9 +1889,12 @@
 
           const updateCount = () => {
             const hex = input.value.replace(/[^0-9A-Fa-f]/g, '');
-            const bytes = Math.ceil(hex.length / 2);
-            badge.textContent = bytes + ' B';
-            badge.classList.toggle('has-data', bytes > 0);
+            const isOdd = hex.length % 2 === 1;
+            const bytes = Math.floor(hex.length / 2);
+            badge.textContent = isOdd ? `${bytes} B · odd nibble` : `${bytes} B`;
+            badge.title = isOdd ? 'Hex has an odd number of digits — the last nibble is ignored.' : '';
+            badge.classList.toggle('has-data', bytes > 0 && !isOdd);
+            badge.classList.toggle('odd', isOdd);
           };
           input.addEventListener('input', updateCount);
         }
